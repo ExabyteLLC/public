@@ -1,0 +1,40 @@
+{
+  "files": {
+    "main.css": "./static/css/main.0303a78e.css",
+    "main.js": "./static/js/main.39e38d5a.js",
+    "static/media/OpenSans-VariableFont_wdth,wght.ttf": "./static/media/OpenSans-VariableFont_wdth,wght.19ba637387f1d6142f55.ttf",
+    "static/media/fa-solid-900.ttf": "./static/media/fa-solid-900.d75e3fd1eb12e9bd6655.ttf",
+    "static/media/fa-brands-400.ttf": "./static/media/fa-brands-400.016b4a6cdced82ab3aa1.ttf",
+    "static/media/Poppins-Medium.ttf": "./static/media/Poppins-Medium.9e1bb626874ed49aa343.ttf",
+    "static/media/Poppins-Bold.ttf": "./static/media/Poppins-Bold.404e299be26d78e66794.ttf",
+    "static/media/fa-solid-900.woff2": "./static/media/fa-solid-900.b6879d41b0852f01ed5b.woff2",
+    "static/media/4.png": "./static/media/4.38ee5ac9b448b9c1a327.png",
+    "static/media/fa-brands-400.woff2": "./static/media/fa-brands-400.878f31251d960bd6266f.woff2",
+    "static/media/preloader.gif": "./static/media/preloader.9f5629297079d9be0ac9.gif",
+    "static/media/BebasNeue-Regular.ttf": "./static/media/BebasNeue-Regular.ffc579549277f0a78cd8.ttf",
+    "static/media/fa-regular-400.ttf": "./static/media/fa-regular-400.50701fbb8177c2dde530.ttf",
+    "static/media/5.png": "./static/media/5.471f62f550b357cd4088.png",
+    "static/media/5D.svg": "./static/media/5D.b397ed6c40ea6ec355574195b9030633.svg",
+    "static/media/fa-regular-400.woff2": "./static/media/fa-regular-400.b041b1fa4fe241b23445.woff2",
+    "static/media/QChat-logo.png": "./static/media/QChat-logo.209f0883662e6cca3a26.png",
+    "static/media/6.png": "./static/media/6.b1ddd3d574036d6cf7ec.png",
+    "static/media/fa-v4compatibility.ttf": "./static/media/fa-v4compatibility.c6a0c95b0a95c4553700.ttf",
+    "static/media/fa-v4compatibility.woff2": "./static/media/fa-v4compatibility.1bac2991f3dbfa237aec.woff2",
+    "static/media/test.svg": "./static/media/test.dda7798b3730b969c1bef643acbb0db8.svg",
+    "static/media/ar1.svg": "./static/media/ar1.a056091cb2c42fbc8be788cd88f02288.svg",
+    "static/media/dashboard.svg": "./static/media/dashboard.f782ad50adca2dc9dee243f7ba8bbb9d.svg",
+    "static/media/project management.svg": "./static/media/project management.1c0f3e1ec2f81bf89d9dee3ee2d50f77.svg",
+    "static/media/up.svg": "./static/media/up.ed4cc48601d3979c7fd1d32498c2e60e.svg",
+    "static/media/rocket.svg": "./static/media/rocket.664c5ef003175b6d3c0667571ca528b1.svg",
+    "static/media/question.svg": "./static/media/question.dba184d48a4e0a11cc67d3bb27211d14.svg",
+    "static/media/ar2.svg": "./static/media/ar2.98b03a29e98ed3b8f8b38ebe19515efe.svg",
+    "static/media/analysis.svg": "./static/media/analysis.a675c551af3ff06cca19885790d0da47.svg",
+    "index.html": "./index.html",
+    "main.0303a78e.css.map": "./static/css/main.0303a78e.css.map",
+    "main.39e38d5a.js.map": "./static/js/main.39e38d5a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0303a78e.css",
+    "static/js/main.39e38d5a.js"
+  ]
+}
