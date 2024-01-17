@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "./static/css/main.0303a78e.css",
-    "main.js": "./static/js/main.39e38d5a.js",
+    "main.css": "./static/css/main.49a4f24f.css",
+    "main.js": "./static/js/main.16fc9b72.js",
     "static/media/OpenSans-VariableFont_wdth,wght.ttf": "./static/media/OpenSans-VariableFont_wdth,wght.19ba637387f1d6142f55.ttf",
     "static/media/fa-solid-900.ttf": "./static/media/fa-solid-900.d75e3fd1eb12e9bd6655.ttf",
     "static/media/fa-brands-400.ttf": "./static/media/fa-brands-400.016b4a6cdced82ab3aa1.ttf",
@@ -17,24 +17,25 @@
     "static/media/5D.svg": "./static/media/5D.b397ed6c40ea6ec355574195b9030633.svg",
     "static/media/fa-regular-400.woff2": "./static/media/fa-regular-400.b041b1fa4fe241b23445.woff2",
     "static/media/QChat-logo.png": "./static/media/QChat-logo.209f0883662e6cca3a26.png",
+    "static/media/test.png": "./static/media/test.5160c114c6d010e279a6.png",
     "static/media/6.png": "./static/media/6.b1ddd3d574036d6cf7ec.png",
     "static/media/fa-v4compatibility.ttf": "./static/media/fa-v4compatibility.c6a0c95b0a95c4553700.ttf",
     "static/media/fa-v4compatibility.woff2": "./static/media/fa-v4compatibility.1bac2991f3dbfa237aec.woff2",
-    "static/media/test.svg": "./static/media/test.dda7798b3730b969c1bef643acbb0db8.svg",
-    "static/media/ar1.svg": "./static/media/ar1.a056091cb2c42fbc8be788cd88f02288.svg",
-    "static/media/dashboard.svg": "./static/media/dashboard.f782ad50adca2dc9dee243f7ba8bbb9d.svg",
-    "static/media/project management.svg": "./static/media/project management.1c0f3e1ec2f81bf89d9dee3ee2d50f77.svg",
-    "static/media/up.svg": "./static/media/up.ed4cc48601d3979c7fd1d32498c2e60e.svg",
-    "static/media/rocket.svg": "./static/media/rocket.664c5ef003175b6d3c0667571ca528b1.svg",
-    "static/media/question.svg": "./static/media/question.dba184d48a4e0a11cc67d3bb27211d14.svg",
-    "static/media/ar2.svg": "./static/media/ar2.98b03a29e98ed3b8f8b38ebe19515efe.svg",
-    "static/media/analysis.svg": "./static/media/analysis.a675c551af3ff06cca19885790d0da47.svg",
+    "static/media/test.svg": "./static/media/test.aa2fc67b1f3b623b29f2e8eebd6fb531.svg",
+    "static/media/ar1.svg": "./static/media/ar1.a72ff568d020b7e0744e62e047c11f4e.svg",
+    "static/media/dashboard.svg": "./static/media/dashboard.5c7823d58bf51195d94df1e4309d39ef.svg",
+    "static/media/project management.svg": "./static/media/project management.03b07d201c1620c0267d6a911ce53db0.svg",
+    "static/media/up.svg": "./static/media/up.2b77aea7fa5cabf1ee3856878751f1af.svg",
+    "static/media/rocket.svg": "./static/media/rocket.e4b4f53cd06f5b66582a7a664f0b8088.svg",
+    "static/media/question.svg": "./static/media/question.dc37b16cabb6a66833b36939354e3c7d.svg",
+    "static/media/ar2.svg": "./static/media/ar2.03b3e28f4f1846ede9c06f46133ddcc4.svg",
+    "static/media/analysis.svg": "./static/media/analysis.0a1ee770bf160598af884aef43f2b3c9.svg",
     "index.html": "./index.html",
-    "main.0303a78e.css.map": "./static/css/main.0303a78e.css.map",
-    "main.39e38d5a.js.map": "./static/js/main.39e38d5a.js.map"
+    "main.49a4f24f.css.map": "./static/css/main.49a4f24f.css.map",
+    "main.16fc9b72.js.map": "./static/js/main.16fc9b72.js.map"
   },
   "entrypoints": [
-    "static/css/main.0303a78e.css",
-    "static/js/main.39e38d5a.js"
+    "static/css/main.49a4f24f.css",
+    "static/js/main.16fc9b72.js"
   ]
 }
