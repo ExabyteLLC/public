@@ -13,7 +13,7 @@
     <button onclick="setSOS(3)">SOS 3</button>
 
     <script>
-      var vibe = null;
+      var interval = null;
       function setSOS(level = 1) {
         var pattern = [
           10, 3, 10, 3, 10, 3, 20, 3, 20, 3, 20, 3, 10, 3, 10, 3, 10,
@@ -23,13 +23,12 @@
           pattern[i] = pattern[i] * (10 * level);
         }
 
-        vibe = pattern;
-
-        navigator.vibrate(vibe);
+        clearInterval(interval);
+        interval = setInterval(() => {
+          navigator.vibrate(pattern);
+        }, 5000);
+        navigator.vibrate(pattern);
       }
-      let interval = setInterval(() => {
-        navigator.vibrate(vibe);
-      }, 5000);
     </script>
   </body>
 </html>
