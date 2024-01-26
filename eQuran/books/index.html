@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta copy charset="UTF-8" />
+    <meta
+      copy
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Books</title>
+
+    <!-- boostrap -->
+    <link
+      copy
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <script
+      copy
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- fonts -->
+    <link copy rel="preconnect" href="https://fonts.googleapis.com" />
+    <link copy rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      copy
+      href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- styling -->
+    <style copy>
+      html {
+        font-family: "Amiri Quran", serif;
+      }
+
+      p {
+        margin: 0;
+        display: block;
+        width: 100%;
+        text-align: start;
+        text-wrap: nowrap;
+        overflow: hidden;
+        font-weight: 600;
+        color: #333;
+      }
+      .qg,
+      .qp,
+      .qs {
+        display: block;
+        border-radius: 1px;
+      }
+      .q-aya {
+        display: inline-block;
+        width: 20px;
+        border-radius: 50%;
+      }
+      .qg,
+      .qp,
+      .qs,
+      .q-aya {
+        text-align: center;
+        line-height: 20px;
+        font-size: 0.7rem;
+        margin: 0 5px;
+        border: solid 1px rgba(0, 0, 0, 0.5);
+      }
+      .q-mad-6-fard {
+        color: darkred;
+      }
+      .q-mad-246-gaouaz {
+        color: red;
+      }
+      .q-mad-45-fard {
+        color: orange;
+      }
+      .q-mad-2-fard {
+        color: yellow;
+      }
+      .q-ekhfaa {
+        color: green;
+      }
+      .q-edghaam {
+        color: gray;
+      }
+      .q-tafkheem {
+        color: darkblue;
+      }
+      .q-kalkala {
+        color: blue;
+      }
+    </style>
+
+    <!-- script -->
+    <script type="text/javascript" src="./script.js" defer></script>
+  </head>
+  <body class="position-fixed w-100 h-100 p-1">
+    <div class="row h-100 m-0 border">
+      <div class="h-100 col-6 p-0">
+        <textarea
+          class="h-100 w-100 border"
+          id="textarea"
+          class="form-control"
+        ></textarea>
+      </div>
+      <div class="h-100 col-6 p-0">
+        <iframe class="h-100 w-100 border" id="iframe"></iframe>
+      </div>
+    </div>
+  </body>
+</html>
