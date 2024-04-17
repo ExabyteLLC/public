@@ -1,0 +1,14 @@
+{
+  "media": "./assets/",
+  "layouts": "./locale/layouts.json",
+  "defaultLocale": "en",
+  "locales": [
+    {
+      "code": "en",
+      "dir": "ltr",
+      "name": "English",
+      "fonts": [],
+      "file": "https://qchat-apis-php-xlosu.ondigitalocean.app/public/locales?locale=en"
+    }
+  ]
+}

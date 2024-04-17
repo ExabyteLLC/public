@@ -1,0 +1,13 @@
+Options -MultiViews
+RewriteEngine On
+
+# Rewrite requests to /shop/ to index.html inside the /shop/ directory
+RewriteCond %{REQUEST_URI} ^/shop/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^shop/(.*)$ shop/index.html [QSA,L]
+
+# Rewrite all other requests to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]

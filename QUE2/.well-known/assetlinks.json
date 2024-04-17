@@ -1,0 +1,16 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "net.myque.que",
+            "sha256_cert_fingerprints": [
+                "E1:38:D1:FA:63:03:4A:2D:AC:7B:45:7A:8F:2C:8A:BD:52:06:3F:AE:28:6E:05:E6:01:26:04:E0:E5:58:A0:30",
+                "98:A6:FF:D8:93:ED:82:63:78:64:89:DA:8E:3B:F2:10:BC:96:9F:DD:34:0C:EC:F3:5B:D7:19:ED:55:E8:4E:29",
+                "ED:D9:83:E5:70:39:CA:4B:39:E2:9C:E3:97:6B:00:30:56:0D:3A:A3:B6:E8:45:45:0E:43:EA:FA:58:51:73:FD"
+            ]
+        }
+    }
+]

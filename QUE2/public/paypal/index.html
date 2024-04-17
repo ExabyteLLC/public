@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PayPal Payment</title>
+    <style>
+      * {
+        padding: 0;
+        border: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      #container {
+        position: fixed;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+
+      #paypal-button-container {
+        margin: auto;
+      }
+    </style>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+
+      const currency = urlParams.get("currency");
+      const amount = parseFloat(urlParams.get("amount"));
+    </script>
+  </head>
+
+  <body>
+    <!-- Add a PayPal button container -->
+    <div id="container">
+      <div id="paypal-button-container"></div>
+    </div>
+
+    <!-- Include the PayPal JavaScript SDK -->
+    <script id="script"></script>
+
+    <script>
+      loadScript(
+        `https://www.paypal.com/sdk/js?client-id=AQlPMnhwsdenE0iyYGYAXXmaQ_HV0OzexG70IsbaewS4oWQ6sStcITBdUYxFR4oV3W_48x1Qb4xlq2vX&currency=${currency}`,
+        () => {
+          paypal
+            .Buttons({
+              // Set up the transaction
+              createOrder: function (data, actions) {
+                return actions.order.create({
+                  purchase_units: [
+                    {
+                      amount: {
+                        value: amount,
+                        currency_code: currency,
+                      },
+                    },
+                  ],
+                });
+              },
+              // Finalize the transaction
+              onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                  // Call your server to save the transaction
+                  console.log("Payment completed:", details);
+                  // Redirect or display a success message
+                  window.location.href = `success.html?id=${details["id"]}`;
+                });
+              },
+              onError: function (err) {
+                // Log the error to console
+                console.error("PayPal Error:", err);
+                // Display an error message to the user
+                window.location.href = "error.html";
+              },
+              onCancel: function (data) {
+                // Log cancellation to console
+                console.log("Payment cancelled:", data);
+                // Redirect or display a message to the user
+                window.location.href = "cancelled.html";
+              },
+            })
+            .render("#paypal-button-container");
+        }
+      );
+
+      function loadScript(path, onload) {
+        const script = document.createElement("script");
+        script.src = path;
+        script.onload = () => {
+          onload();
+        };
+        document.head.appendChild(script);
+      }
+    </script>
+  </body>
+</html>
