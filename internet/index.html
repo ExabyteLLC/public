@@ -95,7 +95,7 @@
       async function testSpeed() {
         const imageSize = 3769;
         const getImgSrc = () => {
-          return `https://exabytellc.guthub.io/public/internet/checking.png?v=${new Date().getTime()}`;
+          return `https://exabytellc.github.io/public/internet/checking.png?v=${new Date().getTime()}`;
         };
         const getSpeedFromTime = (start, end) => {
           var duration = (end - start) / 1000;
@@ -110,6 +110,7 @@
           var endTime;
           var image = new Image();
           image.onload = function () {
+            console.log(image.size, imageSize);
             resolve(getSpeedFromTime(startTime, new Date().getTime()));
           };
           image.onerror = function () {
