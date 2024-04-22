@@ -139,6 +139,7 @@
       window.addEventListener("online", setup, { capture: true });
       window.addEventListener("offline", setup, { capture: true });
       window.onload = () => {
+        setup();
         setInterval(() => {
           setup();
         }, 10000);
