@@ -93,9 +93,9 @@
       }
 
       async function testSpeed() {
-        const imageSize = 3769;
+        const imageSize = 403533;
         const getImgSrc = () => {
-          return `https://exabytellc.github.io/public/internet/checking.png?v=${new Date().getTime()}`;
+          return `https://exabytellc.github.io/public/internet/checker.png?v=${performance.now()}`;
         };
         const getSpeedFromTime = (start, end) => {
           var duration = (end - start) / 1000;
@@ -107,18 +107,26 @@
         };
         return await new Promise((resolve) => {
           var startTime;
-          var endTime;
           var image = new Image();
           image.onload = function () {
-            console.log(image.size, imageSize);
-            resolve(getSpeedFromTime(startTime, new Date().getTime()));
+            resolve(getSpeedFromTime(startTime, performance.now()));
           };
           image.onerror = function () {
             resolve(false);
           };
-          startTime = new Date().getTime();
+          startTime = performance.now();
           image.src = getImgSrc();
         });
+      }
+      async function getImageSize(url) {
+        try {
+          const response = await fetch(url, { method: "HEAD" });
+          const size = response.headers.get("content-length");
+          return parseInt(size, 10); // Size in bytes
+        } catch (error) {
+          console.error("Error fetching image size:", error);
+          return null;
+        }
       }
 
       window.addEventListener("online", setup, { capture: true });
@@ -126,7 +134,7 @@
       window.onload = () => {
         setInterval(() => {
           setup();
-        }, 30000);
+        }, 10000);
       };
     </script>
   </body>
