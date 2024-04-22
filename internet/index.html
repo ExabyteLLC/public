@@ -84,6 +84,7 @@
 
       async function setup() {
         const speed = await testSpeed();
+        checking.classList.add("hidden");
         if (speed == false) {
           offline.classList.remove("hidden");
           online.classList.add("hidden");
@@ -96,7 +97,6 @@
           document.title = "Internet Indecator | ONLINE";
           headicon.href = "./online.png";
         }
-        checking.classList.add("hidden");
       }
 
       async function testSpeed() {
