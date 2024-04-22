@@ -25,7 +25,8 @@
       }
 
       #online,
-      #offline {
+      #offline,
+      #checking {
         position: fixed;
         width: 100%;
         height: 100%;
@@ -34,18 +35,16 @@
         align-items: center;
         justify-content: center;
       }
-      #online.hidden,
-      #offline.hidden {
+
+      .hidden {
         display: none;
       }
 
-      #online .title,
-      #offline .title {
+      .title {
         font-size: 3rem;
         color: inherit;
       }
-      #online .body,
-      #offline .body {
+      .body {
         font-size: 1rem;
         color: inherit;
         text-align: center;
@@ -57,6 +56,9 @@
       #offline {
         background-color: red;
       }
+      #checking {
+        background-color: gray;
+      }
     </style>
   </head>
   <body>
@@ -67,6 +69,9 @@
     <div id="offline">
       <span class="title">Offline ;(</span>
     </div>
+    <div id="checking">
+      <span class="title">Checking :o</span>
+    </div>
 
     <script>
       "use strict";
@@ -75,6 +80,7 @@
       const online = document.getElementById("online");
       const onlineData = document.getElementById("online-data");
       const offline = document.getElementById("offline");
+      const checking = document.getElementById("checking");
 
       async function setup() {
         const speed = await testSpeed();
@@ -90,12 +96,13 @@
           document.title = "Internet Indecator | ONLINE";
           headicon.href = "./online.png";
         }
+        checking.classList.add("hidden");
       }
 
       async function testSpeed() {
-        const imageSize = 403533;
+        const imageSize = 109749;
         const getImgSrc = () => {
-          return `https://exabytellc.github.io/public/internet/checker.png?v=${performance.now()}`;
+          return `https://exabytellc.github.io/public/internet/checker.png?v=${new Date().getTime()}`;
         };
         const getSpeedFromTime = (start, end) => {
           var duration = (end - start) / 1000;
