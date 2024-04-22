@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Internet Indecator</title>
+    <link
+      rel="shortcut icon"
+      href="./checking.png"
+      type="image/png"
+      id="headicon"
+    />
+
+    <style>
+      * {
+        padding: 0;
+        border: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        font-size: 16px;
+        font-family: monospace;
+      }
+
+      #online,
+      #offline {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #online.hidden,
+      #offline.hidden {
+        display: none;
+      }
+
+      #online .title,
+      #offline .title {
+        font-size: 3rem;
+        color: inherit;
+      }
+      #online .body,
+      #offline .body {
+        font-size: 1rem;
+        color: inherit;
+        text-align: center;
+      }
+
+      #online {
+        background-color: lime;
+      }
+      #offline {
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="online">
+      <span class="title">Online :)</span>
+      <span class="body" id="online-data"></span>
+    </div>
+    <div id="offline">
+      <span class="title">Offline ;(</span>
+    </div>
+
+    <script>
+      "use strict";
+
+      const headicon = document.getElementById("headicon");
+      const online = document.getElementById("online");
+      const onlineData = document.getElementById("online-data");
+      const offline = document.getElementById("offline");
+
+      async function setup() {
+        const speed = await testSpeed();
+        if (speed == false) {
+          offline.classList.remove("hidden");
+          online.classList.add("hidden");
+          document.title = "Internet Indecator | OFFLINE";
+          headicon.href = "./offline.png";
+        } else {
+          online.classList.remove("hidden");
+          offline.classList.add("hidden");
+          onlineData.innerHTML = `Type: ${navigator.connection.effectiveType} <br> DataSaver: ${navigator.connection.saveData} <br> Speed: ${speed}Mbps`;
+          document.title = "Internet Indecator | ONLINE";
+          headicon.href = "./online.png";
+        }
+      }
+
+      async function testSpeed() {
+        const imageSize = 3769;
+        const getImgSrc = () => {
+          return `https://exabytellc.guthub.io/public/internet/checking.png?v=${new Date().getTime()}`;
+        };
+        const getSpeedFromTime = (start, end) => {
+          var duration = (end - start) / 1000;
+          var bitsLoaded = imageSize * 8;
+          var speedBps = +(bitsLoaded / duration).toFixed(2);
+          var speedKbps = +(speedBps / 1024).toFixed(2);
+          var speedMbps = +(speedKbps / 1024).toFixed(2);
+          return speedMbps;
+        };
+        return await new Promise((resolve) => {
+          var startTime;
+          var endTime;
+          var image = new Image();
+          image.onload = function () {
+            resolve(getSpeedFromTime(startTime, new Date().getTime()));
+          };
+          image.onerror = function () {
+            resolve(false);
+          };
+          startTime = new Date().getTime();
+          image.src = getImgSrc();
+        });
+      }
+
+      window.addEventListener("online", setup, { capture: true });
+      window.addEventListener("offline", setup, { capture: true });
+      window.onload = () => {
+        setInterval(() => {
+          setup();
+        }, 30000);
+      };
+    </script>
+  </body>
+</html>
