@@ -106,7 +106,7 @@
           var downloadStartTime;
           var uploadSpeed;
           var xhr = new XMLHttpRequest();
-          xhr.open("POST", getSrc(), true);
+          xhr.open("get", getSrc(), true);
           xhr.responseType = "blob";
 
           xhr.upload.onloadend = (event) => {
@@ -140,6 +140,7 @@
 
           checking();
           uploadStartTime = new Date().getTime();
+          downloadStartTime = new Date().getTime();
           xhr.send(fd);
         };
         // check internet
@@ -233,8 +234,8 @@
 
           title.innerHTML = "Online :)";
           body.innerHTML = [
-            `Download: ${download}Mbps`,
-            `Upload: ${upload}Mbps`,
+            `Download: ${download ?? "-"}Mbps`,
+            `Upload: ${upload ?? "-"}Mbps`,
           ].join("<br/>");
         } else {
           document.title = "Internet Indecator | CHECKING";
