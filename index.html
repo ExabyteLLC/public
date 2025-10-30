@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExabyteLLC Public Links</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Baloo 2", cursive;
+        background: #ffe6f0;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #ff99cc;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      header img {
+        width: 100px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+      }
+      h1 {
+        margin: 0.2rem 0;
+        font-size: 2.5rem;
+      }
+      main {
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+      }
+      .links-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 400px;
+        width: 100%;
+      }
+      .category {
+        margin-bottom: 1.5rem;
+      }
+      .category h2 {
+        margin-bottom: 0.5rem;
+        color: #ff6699;
+        border-bottom: 2px solid #ffccdd;
+        padding-bottom: 0.2rem;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        margin: 0.5rem 0;
+        background: #ffe6f0;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        transition: 0.3s;
+      }
+      li:hover {
+        background: #ffb3d9;
+      }
+      a {
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="https://placekitten.com/100/100" alt="Cute cat" />
+      <h1>ExabyteLLC Public Links</h1>
+    </header>
+
+    <main>
+      <div class="links-container" id="links"></div>
+    </main>
+
+    <script>
+      // JS object with categories and links
+      const linksData = {
+        Utils: {
+          internet: "Internet Checker",
+        },
+      };
+
+      const container = document.getElementById("links");
+
+      for (const category in linksData) {
+        const catDiv = document.createElement("div");
+        catDiv.className = "category";
+
+        const catTitle = document.createElement("h2");
+        catTitle.textContent = category;
+        catDiv.appendChild(catTitle);
+
+        const ul = document.createElement("ul");
+
+        for (const key in linksData[category]) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = "#"; // replace with actual links
+          a.textContent = linksData[category][key];
+          li.appendChild(a);
+          ul.appendChild(li);
+        }
+
+        catDiv.appendChild(ul);
+        container.appendChild(catDiv);
+      }
+    </script>
+  </body>
+</html>

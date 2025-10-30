@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Internet Indecator</title>
+    <title>Internet Indicator</title>
     <link rel="shortcut icon" href="" type="image/png" id="headicon" />
 
     <style>
@@ -84,7 +84,7 @@
 
       async function testSpeed({ interval, online, offline, checking }) {
         const getSrc = () => {
-          return `https://exabytellc.github.io/public/internet/checker.bin?v=${new Date().getTime()}`;
+          return `https://exabytellc.github.io/public/utils/internet/checker.bin?v=${new Date().getTime()}`;
         };
         const getSpeedFromTime = (start, end, size) => {
           var duration = (end - start) / 1000;
