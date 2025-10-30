@@ -18,7 +18,7 @@
     <script src="./models/AudioCtx.js"></script>
     <!-- effects -->
     <script src="./effects/MatrixRainEffect.js"></script>
-    <script src="./effects/PixelsEffect.js"></script>
+    <script src="./effects/ParticleFlowEffect.js"></script>
     <script src="./effects/FlowFieldEffect.js"></script>
     <script src="./effects/BarVisualizerEffect.js"></script>
     <script src="./effects/SpeechVisualizerEffect.js"></script>
@@ -28,30 +28,33 @@
     <script src="./script/dataTypes.js" defer></script>
     <script src="./script/data.js" defer></script>
     <script src="./script/index.js" defer></script>
+
+    <style>
+      html {
+        font-size: 12px;
+      }
+    </style>
   </head>
 
   <body class="position-fixed w-100 h-100">
     <div class="position-relative w-100 h-100">
       <canvas class="w-100 h-100 object-fit-contain" id="canvas"></canvas>
 
-      <div class="position-absolute top-0 start-0">
-        <button class="btn btn-link" id="fullscreen">Fullscreen</button>
-      </div>
-
       <div class="position-absolute top-0 end-0 p-1">
-        <div class="border rounded-2 bg-white overflow-hidden">
-          <table class="table align-middle">
+        <div class="d-flex justify-content-end align-items-center mb-1">
+          <button class="btn btn-link p-0" id="fullscreen">Hide/Show</button>
+        </div>
+        <div class="border rounded-2 bg-white overflow-hidden" id="controls">
+          <table class="table align-middle m-0">
             <tbody>
               <tr>
-                <th class="py-1 px-1">Effect</th>
-                <td class="py-1">
-                  <label class="w-100">
-                    <select
-                      class="form-select form-select-sm"
-                      id="effectsList"
-                    ></select>
-                  </label>
-                </td>
+                <th class="py-1">
+                  <label class="w-100">Effect</label>
+                  <select
+                    class="form-select form-select-sm"
+                    id="effectsList"
+                  ></select>
+                </th>
               </tr>
             </tbody>
             <tbody id="optionsList"></tbody>

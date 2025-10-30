@@ -36,14 +36,13 @@ function setEffect(effect) {
         data: options,
         sample: createEl("tr", {}, [
             createEl("td", {
-                class: "py-1 px-1",
-                label: "",
-            }),
-            createEl("td", { class: "py-1" },
+                class: "py-1",
+                input: "",
+            },
                 [
                     createEl("label", {
                         class: "w-100",
-                        input: "",
+                        label: "",
                     }),
                 ])
         ]),
@@ -132,6 +131,5 @@ document.addEventListener('click', () => {
 
 // toggle fullscreen
 document.getElementById('fullscreen').addEventListener('click', () => {
-    document.getElementById('effectsList').classList.toggle('d-none');
-    document.getElementById('optionsList').classList.toggle('d-none');
+    document.getElementById('controls').classList.toggle('d-none');
 });

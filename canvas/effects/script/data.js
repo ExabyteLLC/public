@@ -6,7 +6,7 @@ function effectsArray() {
             ...optionRange("fade", 0, 1, 0.1),
             ...optionRange("alpha", 0, 1, 0.1),
         }, { background: 'black' }),
-        effect("PixelsEffect", ({ } = {}) => new PixelsEffect(), {
+        effect("ParticleFlowEffect", ({ } = {}) => new ParticleFlowEffect(), {
             ...optionFile("image", "image/*", {
                 emptyValue: true,
                 parseVal: (_, el) => {
@@ -14,7 +14,11 @@ function effectsArray() {
                 },
                 restart: true,
             }),
-            ...optionRange("cell", 1, 50, 1, { restart: true }),
+            ...optionRange("particleCount", 1000, 10000, 100, { restart: true }),
+            ...optionRange("size", 1, 50, 1, { restart: true }),
+            ...optionRange("speed", 0.1, 200, 0.1, { restart: true }),
+            ...optionRange("fade", 0.01, 1, 0.01),
+            ...optionRange("angle", 0, 360, 1),
         }),
         effect("FlowFieldEffect", ({ } = {}) => new FlowFieldEffect(), {
             ...optionSelect("pattern", [
