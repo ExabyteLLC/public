@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Improved Carousel</title>
+    <style>
+      /* Styles cleaned, optimized, and modernized */
+      .eb-carousel,
+      .eb-carousel * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
+
+      .eb-carousel {
+        display: flex;
+        flex-direction: column;
+        width: 400px;
+        height: 400px;
+        margin: auto;
+        position: relative;
+      }
+
+      .eb-carousel.vertical {
+        flex-direction: row;
+      }
+
+      .eb-carousel-slider-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        perspective-origin: center;
+      }
+
+      .eb-carousel.visible .eb-carousel-slider-container {
+        overflow: visible;
+      }
+
+      .eb-carousel-slider {
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 1s ease-out;
+      }
+
+      .eb-carousel-item {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .eb-carousel-indecators-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        gap: 8px;
+      }
+
+      .eb-carousel-indecator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #888;
+        opacity: 0.4;
+        cursor: pointer;
+        transition: opacity 0.25s ease-out;
+      }
+
+      .eb-carousel-indecator.active {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+
+      .eb-carousel-controls-container {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .eb-carousel-controller {
+        padding: 6px 12px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        user-select: none;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .blue-neon {
+        color: rgba(0, 255, 255, 1);
+        box-shadow: 0 0 25px rgba(0, 255, 255, 1);
+        border-radius: 5%;
+        font-size: 26px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <span class="blue-neon">NEON</span>
+
+    <div class="controls">
+      items:
+      <input type="number" min="1" max="100" value="5" id="itemsRange" /><br />
+      vertical: <input type="checkbox" id="verticalToggle" /><br />
+      slides: <input type="checkbox" id="slidesToggle" /><br />
+      visible: <input type="checkbox" id="visibleToggle" checked /><br />
+    </div>
+
+    <div class="eb-carousel visible" id="mainCarousel">
+      <div class="eb-carousel-slider-container">
+        <div class="eb-carousel-slider"></div>
+      </div>
+
+      <div class="eb-carousel-indecators-container"></div>
+
+      <div class="eb-carousel-controls-container">
+        <div class="eb-carousel-controller" data-type="next">next</div>
+        <div class="eb-carousel-controller" data-type="prev">prev</div>
+      </div>
+    </div>
+
+    <script>
+      /* Completely refactored JS – simplified logic, modern syntax, bug fixes */
+
+      const state = {
+        index: 0,
+        total: 4,
+        vertical: false,
+        slides: false,
+        visible: true,
+        auto: null,
+      };
+
+      const slider = document.querySelector(".eb-carousel-slider");
+      const indecContainer = document.querySelector(
+        ".eb-carousel-indecators-container"
+      );
+      const carousel = document.getElementById("mainCarousel");
+
+      function randColor() {
+        const c = () => Math.floor(Math.random() * 100 + 155);
+        return `rgb(${c()},${c()},${c()})`;
+      }
+
+      function buildSlides() {
+        slider.innerHTML = "";
+        indecContainer.innerHTML = "";
+
+        for (let i = 0; i < state.total; i++) {
+          const item = document.createElement("div");
+          item.className = "eb-carousel-item";
+          item.style.transform = getItemTransform(i);
+          item.innerHTML = `<img src="https://random.imagecdn.app/500/${
+            i + 100
+          }" />`;
+          slider.appendChild(item);
+
+          const dot = document.createElement("div");
+          dot.className = "eb-carousel-indecator";
+          dot.dataset.index = i;
+          indecContainer.appendChild(dot);
+        }
+
+        updateActive();
+        updateSliderTransform();
+      }
+
+      function getItemTransform(i) {
+        const angle = 360 / state.total;
+        // distance from center to items
+        const z = 250;
+        return state.vertical
+          ? `rotateX(${-i * angle}deg) translateZ(${z}px) scale(1.0001)`
+          : `rotateY(${i * angle}deg) translateZ(${z}px) scale(1.0001)`;
+      }
+
+      function updateSliderTransform() {
+        const angle = 360 / state.total;
+        const rot = state.index * angle;
+        slider.style.transform = state.vertical
+          ? `translateZ(-250px) rotateX(${rot}deg)`
+          : `translateZ(-250px) rotateY(${-rot}deg)`;
+      }
+
+      function updateActive() {
+        document
+          .querySelectorAll(".eb-carousel-indecator")
+          .forEach((d) => d.classList.remove("active"));
+        const active = document.querySelector(
+          `.eb-carousel-indecator[data-index="${state.index}"]`
+        );
+        if (active) active.classList.add("active");
+      }
+
+      function move(dir) {
+        state.index =
+          (state.index + (dir === "next" ? 1 : -1) + state.total) % state.total;
+        updateSliderTransform();
+        updateActive();
+      }
+
+      indecContainer.addEventListener("click", (e) => {
+        if (e.target.dataset.index) {
+          state.index = Number(e.target.dataset.index);
+          updateSliderTransform();
+          updateActive();
+        }
+      });
+
+      document.querySelectorAll(".eb-carousel-controller").forEach((btn) => {
+        btn.addEventListener("click", () => move(btn.dataset.type));
+      });
+
+      document.getElementById("itemsRange").addEventListener("change", (e) => {
+        state.total = Number(e.target.value);
+        state.index = 0;
+        buildSlides();
+      });
+
+      document
+        .getElementById("verticalToggle")
+        .addEventListener("change", (e) => {
+          state.vertical = e.target.checked;
+          carousel.classList.toggle("vertical", state.vertical);
+          buildSlides();
+        });
+
+      document
+        .getElementById("slidesToggle")
+        .addEventListener("change", (e) => {
+          state.slides = e.target.checked;
+          carousel.classList.toggle("slides", state.slides);
+        });
+
+      document
+        .getElementById("visibleToggle")
+        .addEventListener("change", (e) => {
+          state.visible = e.target.checked;
+          carousel.classList.toggle("visible", state.visible);
+        });
+
+      buildSlides();
+    </script>
+  </body>
+</html>

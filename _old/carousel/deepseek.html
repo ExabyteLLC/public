@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixed 3D Carousel</title>
+    <style>
+      .eb-carousel,
+      .eb-carousel * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        border: none;
+      }
+
+      .eb-carousel {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        position: relative;
+      }
+
+      .eb-carousel.vertical {
+        flex-direction: row;
+      }
+
+      .eb-carousel .eb-carousel-slider-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .eb-carousel.visible .eb-carousel-slider-container {
+        overflow: visible;
+      }
+
+      .eb-carousel .eb-carousel-slider-container .eb-carousel-slider {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 1s ease-out;
+      }
+
+      .eb-carousel.vertical .eb-carousel-slider-container .eb-carousel-slider {
+        flex-direction: column;
+      }
+
+      .eb-carousel
+        .eb-carousel-slider-container
+        .eb-carousel-slider
+        .eb-carousel-item {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        backface-visibility: hidden;
+      }
+
+      .eb-carousel .eb-carousel-indicators-container {
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+        gap: 8px;
+      }
+
+      .eb-carousel.vertical .eb-carousel-indicators-container {
+        flex-direction: column;
+        padding: 0 15px;
+      }
+
+      .eb-carousel .eb-carousel-indicators-container .eb-carousel-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .eb-carousel
+        .eb-carousel-indicators-container
+        .eb-carousel-indicator.active {
+        background-color: #00ffff;
+        transform: scale(1.3);
+      }
+
+      .eb-carousel .eb-carousel-controls-container {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-50%);
+        pointer-events: none;
+        padding: 0 10px;
+      }
+
+      .eb-carousel .eb-carousel-controls-container .eb-carousel-controller {
+        cursor: pointer;
+        pointer-events: all;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.3s ease;
+      }
+
+      .eb-carousel
+        .eb-carousel-controls-container
+        .eb-carousel-controller:hover {
+        background-color: rgba(0, 0, 0, 0.9);
+        transform: scale(1.1);
+      }
+
+      .eb-carousel.vertical .eb-carousel-controls-container {
+        flex-direction: column;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        justify-content: space-between;
+        padding: 10px 0;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .blue-neon {
+        color: #00ffff;
+        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        display: block;
+        margin-bottom: 20px;
+        padding: 10px;
+      }
+
+      .controls-panel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        color: white;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 6px;
+      }
+
+      label {
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      input[type="number"] {
+        width: 60px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <span class="blue-neon">3D CAROUSEL - FIXED VERSION</span>
+
+    <div class="controls-panel">
+      <div class="control-group">
+        <label for="items">Items:</label>
+        <input
+          id="items"
+          type="number"
+          min="3"
+          max="12"
+          value="6"
+          onchange="rangeHandler(this.value)"
+        />
+      </div>
+      <div class="control-group">
+        <label for="vertical">Vertical:</label>
+        <input id="vertical" type="checkbox" onchange="verticalHandler(this)" />
+      </div>
+      <div class="control-group">
+        <label for="autoPlay">Auto Play:</label>
+        <input
+          id="autoPlay"
+          type="checkbox"
+          onchange="autoPlayHandler(this)"
+          checked
+        />
+      </div>
+    </div>
+
+    <div
+      class="eb-carousel"
+      style="
+        width: 500px;
+        height: 350px;
+        margin: 20px auto;
+        border: 2px solid #333;
+        border-radius: 10px;
+        overflow: hidden;
+      "
+    >
+      <div class="eb-carousel-slider-container">
+        <div class="eb-carousel-slider"></div>
+      </div>
+
+      <div class="eb-carousel-indicators-container"></div>
+
+      <div class="eb-carousel-controls-container">
+        <div class="eb-carousel-controller" data-type="prev">❮</div>
+        <div class="eb-carousel-controller" data-type="next">❯</div>
+      </div>
+    </div>
+
+    <script>
+      class Carousel3D {
+        constructor(container) {
+          this.container = container;
+          this.slider = container.querySelector(".eb-carousel-slider");
+          this.indicatorsContainer = container.querySelector(
+            ".eb-carousel-indicators-container"
+          );
+          this.currentIndex = 0;
+          this.totalItems = 0;
+          this.autoPlayInterval = null;
+          this.isVertical = false;
+          this.autoPlayEnabled = true;
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.startAutoPlay();
+        }
+
+        setupEventListeners() {
+          // Navigation controls
+          this.container
+            .querySelectorAll(".eb-carousel-controller")
+            .forEach((controller) => {
+              controller.addEventListener("click", (e) => {
+                const type = e.target.dataset.type;
+                if (type === "next") {
+                  this.next();
+                } else if (type === "prev") {
+                  this.prev();
+                }
+                this.resetAutoPlay();
+              });
+            });
+
+          // Indicators
+          this.indicatorsContainer.addEventListener("click", (e) => {
+            if (e.target.classList.contains("eb-carousel-indicator")) {
+              const index = parseInt(e.target.dataset.index);
+              this.goToSlide(index);
+              this.resetAutoPlay();
+            }
+          });
+
+          // Pause auto-play on hover
+          this.container.addEventListener("mouseenter", () => {
+            this.pauseAutoPlay();
+          });
+
+          this.container.addEventListener("mouseleave", () => {
+            if (this.autoPlayEnabled) {
+              this.startAutoPlay();
+            }
+          });
+        }
+
+        updateItems(items) {
+          this.totalItems = items;
+          this.currentIndex = 0;
+
+          // Clear existing items
+          this.slider.innerHTML = "";
+          this.indicatorsContainer.innerHTML = "";
+
+          // Create new items
+          for (let i = 0; i < items; i++) {
+            const item = document.createElement("div");
+            item.className = "eb-carousel-item";
+            item.style.backgroundColor = this.getRandomColor();
+            item.innerHTML = `<img src="https://picsum.photos/600/400?random=${
+              i + 1
+            }" alt="Slide ${i + 1}">`;
+            this.slider.appendChild(item);
+
+            const indicator = document.createElement("div");
+            indicator.className = "eb-carousel-indicator";
+            indicator.dataset.index = i;
+            this.indicatorsContainer.appendChild(indicator);
+          }
+
+          this.updateLayout();
+          this.updateIndicators();
+        }
+
+        updateLayout() {
+          if (this.totalItems === 0) return;
+
+          const angle = 360 / this.totalItems;
+          const radius = this.isVertical
+            ? this.slider.clientHeight / 2 / Math.tan(Math.PI / this.totalItems)
+            : this.slider.clientWidth / 2 / Math.tan(Math.PI / this.totalItems);
+
+          // Set perspective
+          this.slider.parentElement.style.perspective = "1000px";
+
+          // Position items
+          const items = this.slider.querySelectorAll(".eb-carousel-item");
+          items.forEach((item, index) => {
+            if (this.isVertical) {
+              item.style.transform = `rotateX(${
+                angle * index
+              }deg) translateZ(${radius}px)`;
+            } else {
+              item.style.transform = `rotateY(${
+                angle * index
+              }deg) translateZ(${radius}px)`;
+            }
+          });
+
+          this.updateTransform();
+        }
+
+        updateTransform() {
+          const angle = 360 / this.totalItems;
+          if (this.isVertical) {
+            this.slider.style.transform = `translateZ(-${
+              this.slider.clientHeight / 2
+            }px) rotateX(${-this.currentIndex * angle}deg)`;
+          } else {
+            this.slider.style.transform = `translateZ(-${
+              this.slider.clientWidth / 2
+            }px) rotateY(${-this.currentIndex * angle}deg)`;
+          }
+        }
+
+        next() {
+          this.currentIndex = (this.currentIndex + 1) % this.totalItems;
+          this.updateTransform();
+          this.updateIndicators();
+        }
+
+        prev() {
+          this.currentIndex =
+            (this.currentIndex - 1 + this.totalItems) % this.totalItems;
+          this.updateTransform();
+          this.updateIndicators();
+        }
+
+        goToSlide(index) {
+          this.currentIndex = index;
+          this.updateTransform();
+          this.updateIndicators();
+        }
+
+        updateIndicators() {
+          const indicators = this.indicatorsContainer.querySelectorAll(
+            ".eb-carousel-indicator"
+          );
+          indicators.forEach((indicator, index) => {
+            indicator.classList.toggle("active", index === this.currentIndex);
+          });
+        }
+
+        setVertical(vertical) {
+          this.isVertical = vertical;
+          this.container.classList.toggle("vertical", vertical);
+          this.updateLayout();
+        }
+
+        startAutoPlay() {
+          if (this.autoPlayEnabled && !this.autoPlayInterval) {
+            this.autoPlayInterval = setInterval(() => {
+              this.next();
+            }, 3000);
+          }
+        }
+
+        pauseAutoPlay() {
+          if (this.autoPlayInterval) {
+            clearInterval(this.autoPlayInterval);
+            this.autoPlayInterval = null;
+          }
+        }
+
+        resetAutoPlay() {
+          this.pauseAutoPlay();
+          if (this.autoPlayEnabled) {
+            this.startAutoPlay();
+          }
+        }
+
+        setAutoPlay(enabled) {
+          this.autoPlayEnabled = enabled;
+          if (enabled) {
+            this.startAutoPlay();
+          } else {
+            this.pauseAutoPlay();
+          }
+        }
+
+        getRandomColor() {
+          const colors = [
+            "#FF6B6B",
+            "#4ECDC4",
+            "#45B7D1",
+            "#96CEB4",
+            "#FFEAA7",
+            "#DDA0DD",
+            "#98D8C8",
+            "#F7DC6F",
+            "#BB8FCE",
+            "#85C1E9",
+            "#F8C471",
+            "#82E0AA",
+            "#F1948A",
+            "#85C1E9",
+            "#D7BDE2",
+          ];
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+      }
+
+      // Global carousel instance
+      let carousel;
+
+      // Initialize when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        const carouselElement = document.querySelector(".eb-carousel");
+        carousel = new Carousel3D(carouselElement);
+        rangeHandler(6); // Initialize with 6 items
+      });
+
+      // Control handlers
+      function rangeHandler(val) {
+        if (carousel) {
+          carousel.updateItems(parseInt(val));
+        }
+      }
+
+      function verticalHandler(el) {
+        if (carousel) {
+          carousel.setVertical(el.checked);
+        }
+      }
+
+      function autoPlayHandler(el) {
+        if (carousel) {
+          carousel.setAutoPlay(el.checked);
+        }
+      }
+    </script>
+  </body>
+</html>
