@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+
+    <style>
+      .eb-carousel,
+      .eb-carousel * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        border: none;
+      }
+
+      .eb-carousel {
+        display: block;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+
+      .eb-carousel.vertical {
+        flex-direction: row;
+      }
+
+      .eb-carousel .eb-carousel-slider-container {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        perspective-origin: center;
+      }
+
+      .eb-carousel.visible .eb-carousel-slider-container {
+        overflow: visible;
+      }
+
+      .eb-carousel .eb-carousel-slider-container .eb-carousel-slider {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        -webkit-transform-style: preserve-3d;
+        -moz-transform-style: preserve-3d;
+        -ms-transform-style: preserve-3d;
+        -o-transform-style: preserve-3d;
+        transform-style: preserve-3d;
+      }
+
+      .eb-carousel.vertical .eb-carousel-slider-container .eb-carousel-slider {
+        flex-direction: column;
+      }
+
+      .eb-carousel
+        .eb-carousel-slider-container
+        .eb-carousel-slider.transition {
+        -webkit-transition: transform 1s ease-out;
+        -moz-transition: transform 1s ease-out;
+        -ms-transition: transform 1s ease-out;
+        -o-transition: transform 1s ease-out;
+        transition: transform 1s ease-out;
+      }
+
+      .eb-carousel
+        .eb-carousel-slider-container
+        .eb-carousel-slider
+        .eb-carousel-item {
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .eb-carousel .eb-carousel-indecators-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: stretch;
+        align-content: stretch;
+        width: auto;
+        height: auto;
+      }
+
+      .eb-carousel.vertical .eb-carousel-indecators-container {
+        flex-direction: column;
+      }
+
+      .eb-carousel .eb-carousel-indecators-container .eb-carousel-indecator {
+        margin: 5px;
+        padding: 5px;
+        -webkit-transition: opacity 250ms ease-out;
+        -moz-transition: opacity 250ms ease-out;
+        -ms-transition: opacity 250ms ease-out;
+        -o-transition: opacity 250ms ease-out;
+        transition: opacity 250ms ease-out;
+        opacity: 0.25;
+        cursor: pointer;
+      }
+
+      .eb-carousel
+        .eb-carousel-indecators-container
+        .eb-carousel-indecator.active {
+        padding: 7.5px;
+        opacity: 1;
+      }
+
+      .eb-carousel .eb-carousel-controller {
+        cursor: pointer;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .blue-neon {
+        color: rgba(0, 255, 255, 1);
+        box-shadow: 0 0 25px 0 rgba(0, 255, 255, 1);
+        background-color: rgba(0, 255, 255, 0);
+        border-radius: 5%;
+        font-size: 26px;
+        font-stretch: ultra-expanded;
+      }
+    </style>
+  </head>
+
+  <body>
+    <span class="blue-neon">NEON</span><br /><br /><br />
+
+    items:
+    <input
+      type="number"
+      min="1"
+      max="100"
+      value="5"
+      onchange="rangeHandler(this.value)"
+    /><br />
+    vertical:
+    <input type="checkbox" onchange="verticalHandler(this)" /><br /><br />
+    slides: <input type="checkbox" onchange="slidesHandler(this)" /><br />
+    visible:
+    <input type="checkbox" onchange="visibleHandler(this)" checked /><br />
+
+    <div
+      class="eb-carousel visible"
+      style="width: 400px; height: 400px; margin: auto"
+    >
+      <div class="eb-carousel-slider-container">
+        <div class="eb-carousel-slider"></div>
+      </div>
+
+      <div class="eb-carousel-indecators-container">
+        <div class="eb-carousel-indecator"></div>
+      </div>
+
+      <div class="eb-carousel-controls-container">
+        <div class="eb-carousel-controller" data-type="next">next</div>
+        <div class="eb-carousel-controller" data-type="prev">prev</div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        const XS_SCREEN = 320;
+        const SM_SCREEN = 576;
+        const MD_SCREEN = 768;
+        const LG_SCREEN = 992;
+        const XL_SCREEN = 1200;
+
+        var startCoords = {
+            x: 0,
+            y: 0,
+          },
+          defaultOffset,
+          threshold,
+          dragSlide,
+          dragIndecators,
+          vertical = false,
+          DIR;
+
+        function setup() {
+          DIR = document.querySelector("html").getAttribute("dir");
+
+          let carousels = document.querySelectorAll(".eb-carousel");
+          if (carousels)
+            carousels.forEach((carousel) => {
+              let slider = carousel.querySelector(
+                ".eb-carousel-slider-container .eb-carousel-slider"
+              );
+              if (slider) {
+                let indecators = carousel.querySelectorAll(
+                  ".eb-carousel-indecators-container .eb-carousel-indecator"
+                );
+                if (indecators)
+                  for (let i = 0; i < indecators.length; i++)
+                    indecators[i].dataset.index = i; //setup indecators
+
+                slider.classList.remove("transition"); //remove animaiton
+                let items = slider.querySelectorAll(".eb-carousel-item");
+                let params = {};
+                if (slider.dataset.params)
+                  params = JSON.parse(slider.dataset.params);
+                else
+                  params = {
+                    i: 0,
+                    c: 0,
+                  };
+                params.v = carousel.classList.contains("vertical");
+
+                let length;
+                if (params.v) length = slider.clientHeight;
+                else length = slider.clientWidth;
+
+                params.s = items.length; // sides
+                params.a = 360 / params.s; // angle
+                params.c = params.i; // fake index (cycles)
+                params.z = getZ(length / 2, params.a / 2); // z offset
+
+                if (params.i > params.s - 1) params.i = 0; //stop index from overflowing
+                if (params.i < 0) params.i = params.s - 1; //stop index from underflowing
+
+                if (carousel.classList.contains("slides"))
+                  styleCompatible(
+                    slider.parentElement,
+                    "perspective",
+                    length * params.a + "px"
+                  );
+                //set prespective
+                else
+                  styleCompatible(
+                    slider.parentElement,
+                    "perspective",
+                    length * 2 + "px"
+                  ); //set prespective
+
+                if (items)
+                  for (let i = 0; i < items.length; i++) {
+                    if (params.v)
+                      styleCompatible(
+                        items[i],
+                        "transform",
+                        "rotateX(" +
+                          -params.a * i +
+                          "deg)  rotateY(0deg) translateZ(" +
+                          params.z +
+                          "px)"
+                      );
+                    else
+                      styleCompatible(
+                        items[i],
+                        "transform",
+                        "rotateY(" +
+                          params.a * i +
+                          "deg)  rotateX(0deg) translateZ(" +
+                          params.z +
+                          "px)"
+                      );
+                  }
+
+                if (params.v)
+                  styleCompatible(
+                    slider,
+                    "transform",
+                    "translateZ(" +
+                      -params.z +
+                      "px) rotateX(" +
+                      params.i * params.a +
+                      "deg) rotateY(0deg)"
+                  );
+                //fifo
+                else
+                  styleCompatible(
+                    slider,
+                    "transform",
+                    "translateZ(" +
+                      -params.z +
+                      "px) rotateY(" +
+                      params.i * params.a +
+                      "deg) rotateX(0deg)"
+                  ); //fifo
+
+                slider.dataset.params = JSON.stringify(params); //set new params
+                activeIndecators(slider, params.i); // move indeca`tors
+                setTimeout(() => slider.classList.add("transition"), 100); //add animaiton
+                autoSlider(slider);
+              }
+            });
+        }
+
+        function moveSlider(slider, movement, index) {
+          if (
+            !slider ||
+            !slider.classList.contains("transition") ||
+            slider.classList.contains("indecators") ||
+            document.hidden
+          )
+            return; //stop if not transitioning
+          let params = JSON.parse(slider.dataset.params); //get params
+          slider.classList.add("transition");
+          slider.classList.add("controllers");
+
+          if (movement == "next") params.c++, params.i++;
+          if (movement == "prev") params.c--, params.i--;
+
+          if (params.i > params.s - 1) params.i = 0; //stop index from overflowing
+          if (params.i < 0) params.i = params.s - 1; //stop index from underflowing
+
+          slider.ontransitionend = () => {
+            // after animation lessen numbers
+            slider.classList.remove("controllers");
+            slider.classList.remove("transition");
+            setTimeout(() => {
+              params.c = params.i; // lower cycles
+
+              if (params.v)
+                styleCompatible(
+                  slider,
+                  "transform",
+                  "translateZ(" +
+                    -params.z +
+                    "px) rotateX(" +
+                    params.c * params.a +
+                    "deg) rotateY(0deg)"
+                );
+              //fifo
+              else
+                styleCompatible(
+                  slider,
+                  "transform",
+                  "translateZ(" +
+                    -params.z +
+                    "px) rotateY(" +
+                    -params.c * params.a +
+                    "deg) rotateX(0deg)"
+                ); //fifo
+
+              slider.dataset.params = JSON.stringify(params); // set new params
+              setTimeout(() => slider.classList.add("transition"), 100); // return animation
+            }, 100);
+          };
+
+          setTimeout(() => {
+            // move
+            if (params.v)
+              styleCompatible(
+                slider,
+                "transform",
+                "translateZ(" +
+                  -params.z +
+                  "px) rotateX(" +
+                  params.c * params.a +
+                  "deg) rotateY(0deg)"
+              );
+            //fifo
+            else
+              styleCompatible(
+                slider,
+                "transform",
+                "translateZ(" +
+                  -params.z +
+                  "px) rotateY(" +
+                  -params.c * params.a +
+                  "deg) rotateX(0deg)"
+              ); //fifo
+
+            slider.dataset.params = JSON.stringify(params); // set new params
+            activeIndecators(slider, params.i); // move indecators
+          }, 100);
+        }
+
+        function indecatorHandler(slider, index) {
+          if (
+            !slider ||
+            !slider.classList.contains("transition") ||
+            slider.classList.contains("controllers") ||
+            document.hidden
+          )
+            return; //stop if not transitioning
+          let params = JSON.parse(slider.dataset.params); //get params
+          slider.classList.add("transition");
+          slider.classList.add("indecators");
+
+          params.i = index;
+
+          if (params.i > params.s - 1) params.i = 0; //stop index from overflowing
+          if (params.i < 0) params.i = params.s - 1; //stop index from underflowing
+
+          params.c = params.i;
+
+          slider.ontransitionend = () => slider.classList.remove("indecators");
+
+          setTimeout(() => {
+            // move
+            if (params.v)
+              styleCompatible(
+                slider,
+                "transform",
+                "translateZ(" +
+                  -params.z +
+                  "px) rotateX(" +
+                  params.c * params.a +
+                  "deg) rotateY(0deg)"
+              );
+            //fifo
+            else
+              styleCompatible(
+                slider,
+                "transform",
+                "translateZ(" +
+                  -params.z +
+                  "px) rotateY(" +
+                  -params.c * params.a +
+                  "deg) rotateX(0deg)"
+              ); //fifo
+
+            slider.dataset.params = JSON.stringify(params); // set new params
+            activeIndecators(slider, params.i); // move indecators
+          }, 100);
+        }
+
+        function activeIndecators(slider, index) {
+          let indec = slider.parentElement.parentElement.querySelector(
+            ".eb-carousel-indecators-container"
+          );
+          if (!indec) return;
+          let actives = indec
+            .querySelectorAll(".eb-carousel-indecator.active")
+            .forEach((el) => el.classList.remove("active"));
+          let indecators = indec.querySelectorAll(".eb-carousel-indecator");
+          if (indecators[index]) indecators[index].classList.add("active");
+        }
+
+        function autoSlider(slider) {
+          let params = JSON.parse(slider.dataset.params); //get params
+          if (!params.ac && !params.at)
+            params.ac = setInterval(() => moveSlider(slider, "next"), 10000);
+          else {
+            clearInterval(params.ac), clearTimeout(params.at);
+            delete params.ac;
+            params.at = setTimeout(() => {
+              delete params.at;
+              slider.dataset.params = JSON.stringify(params); //set new params
+              autoSlider(slider);
+            }, 15000);
+          }
+          slider.dataset.params = JSON.stringify(params); //set new params
+        }
+
+        function styleCompatible(el, style, value) {
+          el.style["-webkit-" + style] = value;
+          el.style["-moz-" + style] = value;
+          el.style["-ms-" + style] = value;
+          el.style["-o-" + style] = value;
+          el.style[style] = value;
+        }
+
+        function getZ(b, ba) {
+          //get z translation
+          if (ba >= 90) return 1;
+          let c = b / Math.sin(toRadians(ba));
+          let a = Math.sqrt(Math.pow(c, 2) - Math.pow(b, 2));
+          return a;
+
+          function toRadians(deg) {
+            return (deg / 180) * Math.PI;
+          }
+        }
+
+        window.addEventListener("load", setup);
+        window.addEventListener("resize", setup);
+        document.addEventListener("ebcarousel", setup);
+
+        document.addEventListener("click", function (event) {
+          let el = event.target;
+
+          if (
+            el.matches(
+              ".eb-carousel .eb-carousel-indecators-container .eb-carousel-indecator[data-index]:not(.active)"
+            )
+          ) {
+            let carousel = el.parentElement.parentElement;
+            let slider = carousel.querySelector(
+              ".eb-carousel-slider-container .eb-carousel-slider"
+            );
+            autoSlider(slider);
+            indecatorHandler(slider, el.dataset.index);
+          } else if (
+            el.matches(
+              ".eb-carousel .eb-carousel-controls-container .eb-carousel-controller[data-type]"
+            )
+          ) {
+            let carousel = el.parentElement.parentElement;
+            let slider = carousel.querySelector(
+              ".eb-carousel-slider-container .eb-carousel-slider"
+            );
+            autoSlider(slider);
+            moveSlider(slider, el.dataset.type);
+          }
+        });
+      })();
+
+      function rangeHandler(val) {
+        let sliders = document.querySelectorAll(".eb-carousel-slider");
+        let slides = "";
+        for (let i = 0; i < val; i++)
+          slides +=
+            "<div class='eb-carousel-item' style='background-color:" +
+            getRandomColor(1) +
+            ";'><img src='https://random.imagecdn.app/500/" +
+            i +
+            150 +
+            "'></div>";
+        sliders.forEach((el) => (el.innerHTML = slides));
+
+        let indecators = document.querySelectorAll(
+          ".eb-carousel-indecators-container"
+        );
+        let indecs = "";
+        for (let i = 0; i < val; i++)
+          indecs +=
+            "<div class='eb-carousel-indecator' style='background-color:" +
+            getRandomColor(1) +
+            ";'>" +
+            (i + 1) +
+            "</div>";
+        indecators.forEach((el) => (el.innerHTML = indecs));
+        document.dispatchEvent(new Event("ebcarousel"));
+      }
+      rangeHandler(4);
+
+      function verticalHandler(el) {
+        let els = document.querySelectorAll(".eb-carousel");
+        if (el.checked == true)
+          els.forEach((el) => el.classList.add("vertical"));
+        else els.forEach((el) => el.classList.remove("vertical"));
+        document.dispatchEvent(new Event("ebcarousel"));
+      }
+
+      function visibleHandler(el) {
+        let els = document.querySelectorAll(".eb-carousel");
+        if (el.checked == true)
+          els.forEach((el) => el.classList.add("visible"));
+        else els.forEach((el) => el.classList.remove("visible"));
+        document.dispatchEvent(new Event("ebcarousel"));
+      }
+
+      function slidesHandler(el) {
+        let els = document.querySelectorAll(".eb-carousel");
+        if (el.checked == true) els.forEach((el) => el.classList.add("slides"));
+        else els.forEach((el) => el.classList.remove("slides"));
+        document.dispatchEvent(new Event("ebcarousel"));
+      }
+
+      function getRandomColor(a = 1) {
+        let r = Math.floor(Math.random() * (255 - 155) + 155);
+        let g = Math.floor(Math.random() * (255 - 155) + 155);
+        let b = Math.floor(Math.random() * (255 - 155) + 155);
+        return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+      }
+    </script>
+  </body>
+</html>
