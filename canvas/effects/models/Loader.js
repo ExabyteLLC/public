@@ -58,4 +58,35 @@ class Loader {
 
         return ctx.getImageData(0, 0, width, height);
     }
+
+    static canvasVideoData(video, width, height, keepAspectRatio = true) {
+        if (!width) width = video.videoWidth;
+        if (!height) height = video.videoHeight;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        if (keepAspectRatio) {
+            const imgAspect = video.videoWidth / video.videoHeight;
+            const canvasAspect = width / height;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            if (imgAspect > canvasAspect) {
+                drawWidth = width;
+                drawHeight = width / imgAspect;
+                offsetX = 0;
+                offsetY = (height - drawHeight) / 2;
+            } else {
+                drawWidth = height * imgAspect;
+                drawHeight = height;
+                offsetX = (width - drawWidth) / 2;
+                offsetY = 0;
+            }
+            ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+        } else {
+            ctx.drawImage(video, 0, 0, width, height);
+        }
+
+        return ctx.getImageData(0, 0, width, height);
+    }
 }

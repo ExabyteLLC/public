@@ -1,4 +1,5 @@
 class ParticleFlowEffect extends CanvasObject {
+    videoCtx;
     image;
     particleCount;
     size;
@@ -12,6 +13,7 @@ class ParticleFlowEffect extends CanvasObject {
     children = [];
 
     constructor({
+        videoCtx,
         image = "../../favicon.png",
         particles = 5000,
         size = 8,
@@ -21,6 +23,7 @@ class ParticleFlowEffect extends CanvasObject {
         alpha = 0.9,
     } = {}) {
         super();
+        this.videoCtx = videoCtx;
         this.image = image;
         this.particleCount = particles;
         this.size = size;
@@ -70,6 +73,29 @@ class ParticleFlowEffect extends CanvasObject {
         );
     }
 
+    update({ width, height }) {
+        if (this.videoCtx && this.videoCtx?.playing()) {
+            this.imgData = Loader.canvasVideoData(this.videoCtx.video, width, height);
+            this.imgMap = Array.from({ length: height }, (_, y) =>
+                Array.from({ length: width }, (_, x) => {
+                    const i = (y * width + x) * 4;
+                    const r = this.imgData.data[i];
+                    const g = this.imgData.data[i + 1];
+                    const b = this.imgData.data[i + 2];
+                    const a = this.imgData.data[i + 3];
+
+                    // Faster brightness, no sqrt
+                    const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+
+                    return {
+                        b: brightness,
+                        rgba: `rgba(${r}, ${g}, ${b}, ${a / 255})`
+                    };
+                })
+            );
+        }
+    }
+
     draw(ctx, { drawSave, drawObj }) {
         drawSave(() => {
             ctx.globalAlpha = 1;
@@ -82,6 +108,7 @@ class ParticleFlowEffect extends CanvasObject {
 
         this.particles.forEach(drawObj);
     }
+
 }
 
 class FlowParticle extends CanvasObject {

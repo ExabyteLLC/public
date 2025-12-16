@@ -2,6 +2,7 @@
 const canvas = document.getElementById("canvas");
 const canvasEffect = new CanvasEffect(canvas);
 const audioCtx = new AudioCtx();
+const videoCtx = new VideoCtx(true);
 
 // append effects
 appendSamples({
@@ -28,7 +29,7 @@ appendSamples({
 
 function setEffect(effect) {
     const { name, init, options, background } = effectsArray().find(e => e.name === effect);
-    const instance = init({ audioCtx: audioCtx });
+    const instance = init({ audioCtx: audioCtx, videoCtx: videoCtx });
     canvasEffect.setEffect(instance);
     canvas.style.background = background;
     // options

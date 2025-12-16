@@ -6,7 +6,16 @@ function effectsArray() {
             ...optionRange("fade", 0, 1, 0.1),
             ...optionRange("alpha", 0, 1, 0.1),
         }, { background: 'black' }),
-        effect("ParticleFlowEffect", ({ } = {}) => new ParticleFlowEffect(), {
+        effect("ParticleFlowEffect", ({ videoCtx } = {}) => new ParticleFlowEffect({ videoCtx }), {
+            ...optionCheckbox("camera", {
+                emptyValue: true, onchange: ({ el }) => {
+                    if (el.checked) {
+                        videoCtx.fromCamera();
+                    } else {
+                        videoCtx.stop();
+                    }
+                }
+            }),
             ...optionFile("image", "image/*", {
                 emptyValue: true,
                 parseVal: (_, el) => {
