@@ -13,7 +13,7 @@ class CanvasEffect {
      * @param {CanvasObject} effect - Effect to be applied on canvas
      * @param {Object} options - Configuration options
      */
-    constructor(canvas, effect, { fps = 60 } = {}) {
+    constructor(canvas, effect, { fps = 30 } = {}) {
         this.#canvas = canvas;
         this.#context = this.#canvas.getContext("2d");
         this.#fps = fps;

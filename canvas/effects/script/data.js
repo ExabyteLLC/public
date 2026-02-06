@@ -6,6 +6,12 @@ function effectsArray() {
             ...optionRange("fade", 0, 1, 0.1),
             ...optionRange("alpha", 0, 1, 0.1),
         }, { background: 'black' }),
+        effect("MatrixRainEffect2", ({ } = {}) => new MatrixRainEffect2(), {
+            ...optionColor("color"),
+            ...optionRange("grid", 1, 100, 1, { restart: true }),
+            ...optionRange("fade", 0, 1, 0.1),
+            ...optionRange("alpha", 0, 1, 0.1),
+        }, { background: 'black' }),
         effect("ParticleFlowEffect", ({ videoCtx } = {}) => new ParticleFlowEffect({ videoCtx }), {
             ...optionCheckbox("camera", {
                 emptyValue: true, onchange: ({ el }) => {
