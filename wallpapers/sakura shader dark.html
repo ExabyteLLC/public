@@ -1,0 +1,2185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sakura Day & Night Cycle - URL Configurable</title>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      canvas {
+        display: block;
+      }
+
+      #info {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        color: white;
+        font-size: 14px;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        pointer-events: none;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 8px 16px;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+      }
+
+      #url-info {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 11px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 4px 10px;
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 100;
+      }
+
+      #url-info:hover {
+        color: white;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      #controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        min-width: 220px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.3s ease;
+      }
+
+      #controls.minimized {
+        opacity: 0.2;
+      }
+
+      #controls.minimized:hover {
+        opacity: 1;
+      }
+
+      #controls h3 {
+        margin: 0 0 15px 0;
+        text-align: center;
+        color: #ffb7c5;
+        font-weight: 300;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      #toggle-controls {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 0 5px;
+        width: auto;
+        margin: 0;
+      }
+
+      .control-group {
+        margin-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .control-group:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .control-label {
+        font-size: 12px;
+        margin-bottom: 5px;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      button {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 6px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      button.active {
+        background: #ff7b9c;
+        border-color: #ffb7c5;
+        box-shadow: 0 0 15px rgba(255, 123, 156, 0.5);
+      }
+
+      .button-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+      }
+
+      .button-grid button {
+        margin-bottom: 0;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin: 10px 0;
+        background: transparent;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ff7b9c;
+        margin-top: -6px;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(255, 123, 156, 0.5);
+      }
+
+      .color-value {
+        text-align: center;
+        font-size: 12px;
+        color: #ffb7c5;
+        margin-top: 5px;
+      }
+
+      #time-display {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        color: #ffb7c5;
+        margin: 10px 0;
+        text-shadow: 0 0 10px rgba(255, 183, 197, 0.5);
+      }
+
+      .mode-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        background: rgba(255, 255, 255, 0.2);
+        margin-left: 8px;
+      }
+
+      .note {
+        font-size: 11px;
+        color: #aaa;
+        text-align: center;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      #url-params {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #0f0;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-family: monospace;
+        font-size: 12px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 100;
+        display: none;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        pointer-events: none;
+      }
+
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="sakura"></canvas>
+
+    <div id="info">
+      <span id="time-info">🌸 Sakura Day/Night Cycle | </span>
+      <span id="cycle-status" class="mode-badge">Auto Cycle</span>
+    </div>
+
+    <div id="url-info" class="tooltip">
+      🔗 URL Settings
+      <span class="tooltiptext">
+        <strong>URL Parameters:</strong><br />
+        ?time=12 - Set time (0-24)<br />
+        ?mode=auto/day/night/sunset/dawn<br />
+        ?color=classic/deep/moon/autumn/spring/rainbow<br />
+        ?petals=2000 - Number of petals<br />
+        ?speed=0.1 - Cycle speed<br />
+        ?transition=2.0 - Transition seconds<br />
+        ?cycle=true/false - Auto cycle<br /><br />
+        Example: ?time=17.5&mode=sunset&color=autumn
+      </span>
+    </div>
+
+    <div id="url-params"></div>
+
+    <div id="controls">
+      <h3>
+        🌸 Sakura Controller
+        <button id="toggle-controls">▼</button>
+      </h3>
+
+      <div class="control-group">
+        <div class="control-label">
+          Time of Day
+          <span id="time-mode-indicator">(Auto)</span>
+        </div>
+        <div id="time-display">12:00 PM</div>
+        <input
+          type="range"
+          id="time-slider"
+          min="0"
+          max="24"
+          step="0.1"
+          value="12"
+        />
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #888;
+          "
+        >
+          <span>Dawn</span>
+          <span>Day</span>
+          <span>Sunset</span>
+          <span>Night</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">Time Mode</div>
+        <div class="button-grid">
+          <button id="mode-auto" class="active">🔄 Auto</button>
+          <button id="mode-day">☀️ Day</button>
+          <button id="mode-night">🌙 Night</button>
+          <button id="mode-sunset">🌅 Sunset</button>
+          <button id="mode-dawn">🌄 Dawn</button>
+          <button id="mode-random">🎲 Random</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">Color Theme</div>
+        <div class="button-grid">
+          <button id="color-classic" class="active">🌸 Classic</button>
+          <button id="color-deep">🌺 Deep</button>
+          <button id="color-moon">🌙 Moonlight</button>
+          <button id="color-autumn">🍂 Autumn</button>
+          <button id="color-spring">🌿 Spring</button>
+          <button id="color-rainbow">🌈 Rainbow</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Petal Count
+          <span id="petal-count">2000</span>
+        </div>
+        <input
+          type="range"
+          id="petal-slider"
+          min="500"
+          max="4000"
+          step="100"
+          value="2000"
+        />
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Cycle Speed
+          <span id="speed-value">0.1x</span>
+        </div>
+        <input
+          type="range"
+          id="speed-slider"
+          min="0.05"
+          max="0.5"
+          step="0.05"
+          value="0.1"
+        />
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">
+          Transition Time
+          <span id="transition-value">2.0s</span>
+        </div>
+        <input
+          type="range"
+          id="transition-slider"
+          min="0.5"
+          max="5.0"
+          step="0.5"
+          value="2.0"
+        />
+      </div>
+
+      <div style="display: flex; gap: 5px">
+        <button id="copy-url">📋 Copy URL</button>
+        <button id="reset-default">🔄 Reset</button>
+      </div>
+
+      <div class="note">Settings saved in URL • Smooth transitions</div>
+    </div>
+
+    <!-- Vertex Shader for Sakura Points -->
+    <script id="sakura_point_vsh" type="x-shader/x_vertex">
+      uniform mat4 uProjection;
+      uniform mat4 uModelview;
+      uniform vec3 uResolution;
+      uniform vec3 uOffset;
+      uniform vec3 uDOF;
+      uniform vec3 uFade;
+
+      attribute vec3 aPosition;
+      attribute vec3 aEuler;
+      attribute vec2 aMisc;
+
+      varying vec3 pposition;
+      varying float psize;
+      varying float palpha;
+      varying float pdist;
+      varying vec3 normX;
+      varying vec3 normY;
+      varying vec3 normZ;
+      varying vec3 normal;
+      varying float diffuse;
+      varying float specular;
+      varying float rstop;
+      varying float distancefade;
+
+      void main(void) {
+          vec4 pos = uModelview * vec4(aPosition + uOffset, 1.0);
+          gl_Position = uProjection * pos;
+          gl_PointSize = aMisc.x * uProjection[1][1] / -pos.z * uResolution.y * 0.5;
+
+          pposition = pos.xyz;
+          psize = aMisc.x;
+          pdist = length(pos.xyz);
+          palpha = smoothstep(0.0, 1.0, (pdist - 0.1) / uFade.z);
+
+          vec3 elrsn = sin(aEuler);
+          vec3 elrcs = cos(aEuler);
+
+          mat3 rotx = mat3(
+              1.0, 0.0, 0.0,
+              0.0, elrcs.x, elrsn.x,
+              0.0, -elrsn.x, elrcs.x
+          );
+          mat3 roty = mat3(
+              elrcs.y, 0.0, -elrsn.y,
+              0.0, 1.0, 0.0,
+              elrsn.y, 0.0, elrcs.y
+          );
+          mat3 rotz = mat3(
+              elrcs.z, elrsn.z, 0.0,
+              -elrsn.z, elrcs.z, 0.0,
+              0.0, 0.0, 1.0
+          );
+
+          mat3 rotmat = rotx * roty * rotz;
+          normal = rotmat[2];
+
+          mat3 trrotm = mat3(
+              rotmat[0][0], rotmat[1][0], rotmat[2][0],
+              rotmat[0][1], rotmat[1][1], rotmat[2][1],
+              rotmat[0][2], rotmat[1][2], rotmat[2][2]
+          );
+          normX = trrotm[0];
+          normY = trrotm[1];
+          normZ = trrotm[2];
+
+          const vec3 lit = vec3(0.6917144638660746, 0.6917144638660746, -0.20751433915982237);
+
+          float tmpdfs = dot(lit, normal);
+          if(tmpdfs < 0.0) {
+              normal = -normal;
+              tmpdfs = dot(lit, normal);
+          }
+          diffuse = 0.4 + tmpdfs;
+
+          vec3 eyev = normalize(-pos.xyz);
+          if(dot(eyev, normal) > 0.0) {
+              vec3 hv = normalize(eyev + lit);
+              specular = pow(max(dot(hv, normal), 0.0), 20.0);
+          } else {
+              specular = 0.0;
+          }
+
+          rstop = clamp((abs(pdist - uDOF.x) - uDOF.y) / uDOF.z, 0.0, 1.0);
+          rstop = pow(rstop, 0.5);
+          distancefade = min(1.0, exp((uFade.x - pdist) * 0.69315 / uFade.y));
+      }
+    </script>
+
+    <!-- Fragment Shader for Sakura Points (Modified for color control) -->
+    <script id="sakura_point_fsh" type="x-shader/x_fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      uniform vec3 uDOF;
+      uniform vec3 uFade;
+      uniform vec3 uColor1;      // Primary petal color
+      uniform vec3 uColor2;      // Secondary petal color
+      uniform vec3 uFadeColor;   // Fade/distance color
+      uniform float uTimeOfDay;   // 0-24 hour
+      uniform float uNightMode;   // 0=day, 1=night blend
+      uniform float uTransition;   // Transition smoothness
+
+      varying vec3 pposition;
+      varying float psize;
+      varying float palpha;
+      varying float pdist;
+      varying vec3 normX;
+      varying vec3 normY;
+      varying vec3 normZ;
+      varying vec3 normal;
+      varying float diffuse;
+      varying float specular;
+      varying float rstop;
+      varying float distancefade;
+
+      float ellipse(vec2 p, vec2 o, vec2 r) {
+          vec2 lp = (p - o) / r;
+          return length(lp) - 1.0;
+      }
+
+      void main(void) {
+          vec3 p = vec3(gl_PointCoord - vec2(0.5, 0.5), 0.0) * 2.0;
+          vec3 d = vec3(0.0, 0.0, -1.0);
+          float nd = normZ.z;
+
+          if(abs(nd) < 0.0001) discard;
+
+          float np = dot(normZ, p);
+          vec3 tp = p + d * np / nd;
+          vec2 coord = vec2(dot(normX, tp), dot(normY, tp));
+
+          const float flwrsn = 0.258819045102521;
+          const float flwrcs = 0.965925826289068;
+          mat2 flwrm = mat2(flwrcs, -flwrsn, flwrsn, flwrcs);
+          vec2 flwrp = vec2(abs(coord.x), coord.y) * flwrm;
+
+          float r;
+          if(flwrp.x < 0.0) {
+              r = ellipse(flwrp, vec2(0.065, 0.024) * 0.5, vec2(0.36, 0.96) * 0.5);
+          } else {
+              r = ellipse(flwrp, vec2(0.065, 0.024) * 0.5, vec2(0.58, 0.96) * 0.5);
+          }
+
+          if(r > rstop) discard;
+
+          // Mix colors based on position in petal
+          vec3 col;
+
+          // Special handling for rainbow theme
+          if (uColor1.r > 1.0 && uColor1.g < 0.6) { // Quick check for rainbow mode
+              float hue = mod(coord.x * 2.0 + uTimeOfDay * 0.1, 1.0);
+              if (hue < 0.166) col = vec3(1.0, 0.5, 0.5); // Red
+              else if (hue < 0.333) col = vec3(1.0, 0.8, 0.5); // Orange
+              else if (hue < 0.5) col = vec3(1.0, 1.0, 0.5); // Yellow
+              else if (hue < 0.666) col = vec3(0.5, 1.0, 0.5); // Green
+              else if (hue < 0.833) col = vec3(0.5, 0.8, 1.0); // Blue
+              else col = vec3(0.8, 0.5, 1.0); // Purple
+          } else {
+              col = mix(uColor1, uColor2, r);
+          }
+
+          // Add gradient based on coord y
+          float grady = mix(0.0, 1.0, pow(coord.y * 0.5 + 0.5, 0.35));
+          col *= vec3(1.0, grady, grady);
+
+          // Edge darkening
+          col *= mix(0.8, 1.0, pow(abs(coord.x), 0.3));
+
+          // Apply lighting
+          col = col * diffuse + specular;
+
+          // Apply distance fade
+          col = mix(uFadeColor, col, distancefade);
+
+          // Smooth night mode transition
+          float nightFactor = smoothstep(0.0, 1.0, uNightMode);
+          col = mix(col, col * 0.4, nightFactor * uTransition);
+
+          float alpha = (rstop > 0.001) ? (0.5 - r / (rstop * 2.0)) : 1.0;
+          alpha = smoothstep(0.0, 1.0, alpha) * palpha;
+
+          gl_FragColor = vec4(col, alpha);
+      }
+    </script>
+
+    <!-- Common Vertex Shader for Effects -->
+    <script id="fx_common_vsh" type="x-shader/x_vertex">
+      uniform vec3 uResolution;
+      attribute vec2 aPosition;
+
+      varying vec2 texCoord;
+
+      void main(void) {
+          gl_Position = vec4(aPosition, 0.0, 1.0);
+          texCoord = aPosition.xy * 0.5 + vec2(0.5, 0.5);
+      }
+    </script>
+
+    <!-- Background Fragment Shader with smooth transitions -->
+    <script id="bg_fsh" type="x-shader/x_fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      uniform vec2 uTimes;
+      uniform float uTimeOfDay;
+      uniform float uNightMode;
+      uniform float uTransition;
+      varying vec2 texCoord;
+
+      void main(void) {
+          vec3 col;
+          float c;
+          vec2 tmpv = texCoord * vec2(0.8, 1.0) - vec2(0.95, 1.0);
+          c = exp(-pow(length(tmpv) * 1.8, 2.0));
+
+          // Dynamic sky colors based on time with smooth transitions
+          vec3 daySky1 = vec3(0.02, 0.0, 0.03);
+          vec3 daySky2 = vec3(0.96, 0.98, 1.0);
+
+          vec3 sunsetSky1 = vec3(0.3, 0.1, 0.2);
+          vec3 sunsetSky2 = vec3(1.0, 0.7, 0.5);
+
+          vec3 nightSky1 = vec3(0.0, 0.0, 0.05);
+          vec3 nightSky2 = vec3(0.1, 0.05, 0.2);
+
+          vec3 sky1, sky2;
+
+          // Smooth transitions based on time of day
+          if (uTimeOfDay >= 16.0 && uTimeOfDay <= 19.0) {
+              // Sunset transition
+              float t = smoothstep(16.0, 19.0, uTimeOfDay);
+              sky1 = mix(daySky1, sunsetSky1, t);
+              sky2 = mix(daySky2, sunsetSky2, t);
+          } else if (uTimeOfDay > 19.0 || uTimeOfDay < 5.0) {
+              // Night transition
+              float t;
+              if (uTimeOfDay > 19.0) {
+                  t = smoothstep(19.0, 24.0, uTimeOfDay);
+              } else {
+                  t = smoothstep(0.0, 5.0, uTimeOfDay);
+              }
+              sky1 = mix(sunsetSky1, nightSky1, t);
+              sky2 = mix(sunsetSky2, nightSky2, t);
+          } else if (uTimeOfDay >= 5.0 && uTimeOfDay <= 7.0) {
+              // Dawn transition
+              float t = smoothstep(5.0, 7.0, uTimeOfDay);
+              sky1 = mix(nightSky1, daySky1, t);
+              sky2 = mix(nightSky2, daySky2, t);
+          } else {
+              // Day
+              sky1 = daySky1;
+              sky2 = daySky2;
+          }
+
+          col = mix(sky1, sky2 * 1.5, c);
+
+          // Stars with smooth fade
+          float nightFactor = smoothstep(0.0, 1.0, uNightMode);
+          if (nightFactor > 0.01) {
+              float stars = sin(texCoord.x * 100.0) * sin(texCoord.y * 100.0) * 0.1;
+              stars *= sin(texCoord.x * 30.0) * sin(texCoord.y * 30.0) * 0.2;
+              col += vec3(stars * 0.5, stars * 0.3, stars) * nightFactor;
+          }
+
+          gl_FragColor = vec4(col, 1.0);
+      }
+    </script>
+
+    <!-- Bright Buffer Fragment Shader -->
+    <script id="fx_brightbuf_fsh" type="x-shader/x_fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      uniform sampler2D uSrc;
+      uniform vec2 uDelta;
+      varying vec2 texCoord;
+
+      void main(void) {
+          vec4 col = texture2D(uSrc, texCoord);
+          gl_FragColor = vec4(col.rgb * 2.0 - vec3(0.5), 1.0);
+      }
+    </script>
+
+    <!-- Directional Blur Fragment Shader -->
+    <script id="fx_dirblur_r4_fsh" type="x-shader/x_fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      uniform sampler2D uSrc;
+      uniform vec2 uDelta;
+      uniform vec4 uBlurDir;
+      varying vec2 texCoord;
+
+      void main(void) {
+          vec4 col = texture2D(uSrc, texCoord);
+          col += texture2D(uSrc, texCoord + uBlurDir.xy * uDelta);
+          col += texture2D(uSrc, texCoord - uBlurDir.xy * uDelta);
+          col += texture2D(uSrc, texCoord + (uBlurDir.xy + uBlurDir.zw) * uDelta);
+          col += texture2D(uSrc, texCoord - (uBlurDir.xy + uBlurDir.zw) * uDelta);
+          gl_FragColor = col / 5.0;
+      }
+    </script>
+
+    <!-- Final Composite Vertex Shader -->
+    <script id="pp_final_vsh" type="x-shader/x_vertex">
+      uniform vec3 uResolution;
+      attribute vec2 aPosition;
+      varying vec2 texCoord;
+
+      void main(void) {
+          gl_Position = vec4(aPosition, 0.0, 1.0);
+          texCoord = aPosition.xy * 0.5 + vec2(0.5, 0.5);
+      }
+    </script>
+
+    <!-- Final Composite Fragment Shader (Dynamic color grading) -->
+    <script id="pp_final_fsh" type="x-shader/x_fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      uniform sampler2D uSrc;
+      uniform sampler2D uBloom;
+      uniform float uTimeOfDay;
+      uniform float uNightMode;
+      varying vec2 texCoord;
+
+      void main(void) {
+          vec4 srccol = texture2D(uSrc, texCoord) * 2.0;
+          vec4 bloomcol = texture2D(uBloom, texCoord);
+          vec4 col = srccol + bloomcol * (vec4(1.0) + srccol);
+
+          // Dynamic vignette based on time
+          float vignette = smoothstep(1.0, 0.0, pow(length((texCoord - vec2(0.5)) * 2.0), 1.2) * 0.5);
+
+          // Time-based color grading
+          float nightFactor = smoothstep(0.0, 1.0, uNightMode);
+          col = mix(col, vec4(col.r * 0.8, col.g * 0.9, col.b * 1.2, 1.0), nightFactor);
+
+          col *= vignette;
+          col = pow(col, vec4(0.45454545454545));
+
+          gl_FragColor = vec4(col.rgb, 1.0);
+      }
+    </script>
+
+    <!-- Main Application Script -->
+    <script>
+      (function () {
+        // Utility Classes
+        const Vector3 = {
+          create: function (x, y, z) {
+            return { x: x || 0, y: y || 0, z: z || 0 };
+          },
+          dot: function (v0, v1) {
+            return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
+          },
+          cross: function (v, v0, v1) {
+            v.x = v0.y * v1.z - v0.z * v1.y;
+            v.y = v0.z * v1.x - v0.x * v1.z;
+            v.z = v0.x * v1.y - v0.y * v1.x;
+          },
+          normalize: function (v) {
+            const l = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+            if (l > 0.00001) {
+              v.x /= l;
+              v.y /= l;
+              v.z /= l;
+            }
+          },
+          arrayForm: function (v) {
+            return new Float32Array([v.x, v.y, v.z]);
+          },
+        };
+
+        const Matrix44 = {
+          createIdentity: function () {
+            return new Float32Array([
+              1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+              0.0, 0.0, 1.0,
+            ]);
+          },
+          loadProjection: function (m, aspect, vdeg, near, far) {
+            const h = near * Math.tan((vdeg * Math.PI) / 360.0) * 2.0;
+            const w = h * aspect;
+
+            m[0] = (2.0 * near) / w;
+            m[1] = 0.0;
+            m[2] = 0.0;
+            m[3] = 0.0;
+
+            m[4] = 0.0;
+            m[5] = (2.0 * near) / h;
+            m[6] = 0.0;
+            m[7] = 0.0;
+
+            m[8] = 0.0;
+            m[9] = 0.0;
+            m[10] = -(far + near) / (far - near);
+            m[11] = -1.0;
+
+            m[12] = 0.0;
+            m[13] = 0.0;
+            m[14] = (-2.0 * far * near) / (far - near);
+            m[15] = 0.0;
+          },
+          loadLookAt: function (m, vpos, vlook, vup) {
+            const frontv = Vector3.create(
+              vpos.x - vlook.x,
+              vpos.y - vlook.y,
+              vpos.z - vlook.z,
+            );
+            Vector3.normalize(frontv);
+
+            const sidev = Vector3.create(1.0, 0.0, 0.0);
+            Vector3.cross(sidev, vup, frontv);
+            Vector3.normalize(sidev);
+
+            const topv = Vector3.create(1.0, 0.0, 0.0);
+            Vector3.cross(topv, frontv, sidev);
+            Vector3.normalize(topv);
+
+            m[0] = sidev.x;
+            m[1] = topv.x;
+            m[2] = frontv.x;
+            m[3] = 0.0;
+
+            m[4] = sidev.y;
+            m[5] = topv.y;
+            m[6] = frontv.y;
+            m[7] = 0.0;
+
+            m[8] = sidev.z;
+            m[9] = topv.z;
+            m[10] = frontv.z;
+            m[11] = 0.0;
+
+            m[12] = -(vpos.x * m[0] + vpos.y * m[4] + vpos.z * m[8]);
+            m[13] = -(vpos.x * m[1] + vpos.y * m[5] + vpos.z * m[9]);
+            m[14] = -(vpos.x * m[2] + vpos.y * m[6] + vpos.z * m[10]);
+            m[15] = 1.0;
+          },
+        };
+
+        // URL Parameter Handling
+        function getURLParams() {
+          const params = new URLSearchParams(window.location.search);
+          return {
+            time: params.has("time") ? parseFloat(params.get("time")) : null,
+            mode: params.get("mode"),
+            color: params.get("color"),
+            petals: params.has("petals")
+              ? parseInt(params.get("petals"))
+              : null,
+            speed: params.has("speed") ? parseFloat(params.get("speed")) : null,
+            transition: params.has("transition")
+              ? parseFloat(params.get("transition"))
+              : null,
+            cycle: params.has("cycle") ? params.get("cycle") === "true" : null,
+          };
+        }
+
+        function updateURL(params) {
+          const url = new URL(window.location);
+          Object.keys(params).forEach((key) => {
+            if (params[key] !== null && params[key] !== undefined) {
+              url.searchParams.set(key, params[key]);
+            } else {
+              url.searchParams.delete(key);
+            }
+          });
+          window.history.replaceState({}, "", url);
+          document.getElementById("url-params").textContent = url.search;
+          document.getElementById("url-params").style.display = url.search
+            ? "block"
+            : "none";
+        }
+
+        // Time management
+        const timeInfo = {
+          start: 0,
+          prev: 0,
+          delta: 0,
+          elapsed: 0,
+        };
+
+        // Color schemes with smooth transitions
+        const colorSchemes = {
+          classic: {
+            name: "Classic Pink",
+            color1: [1.0, 0.8, 0.75],
+            color2: [1.0, 0.9, 0.87],
+            fadeColor: [0.08, 0.03, 0.06],
+          },
+          deep: {
+            name: "Deep Sakura",
+            color1: [1.0, 0.6, 0.8],
+            color2: [1.0, 0.7, 0.9],
+            fadeColor: [0.15, 0.05, 0.1],
+          },
+          moon: {
+            name: "Moonlight",
+            color1: [0.9, 0.9, 1.0],
+            color2: [0.95, 0.95, 1.0],
+            fadeColor: [0.05, 0.05, 0.1],
+          },
+          autumn: {
+            name: "Autumn",
+            color1: [1.0, 0.6, 0.4],
+            color2: [1.0, 0.8, 0.5],
+            fadeColor: [0.15, 0.05, 0.0],
+          },
+          spring: {
+            name: "Spring Fresh",
+            color1: [0.9, 1.0, 0.9],
+            color2: [1.0, 0.95, 0.9],
+            fadeColor: [0.03, 0.08, 0.03],
+          },
+          rainbow: {
+            name: "Rainbow",
+            color1: [2.0, 0.5, 0.5], // Special marker for rainbow mode
+            color2: [0.5, 2.0, 0.5],
+            fadeColor: [0.5, 0.0, 0.5],
+          },
+        };
+
+        // WebGL context and render specification
+        let gl;
+        const renderSpec = {
+          width: 0,
+          height: 0,
+          aspect: 1,
+          array: new Float32Array(3),
+          halfWidth: 0,
+          halfHeight: 0,
+          halfArray: new Float32Array(3),
+          setSize: function (w, h) {
+            this.width = w;
+            this.height = h;
+            this.aspect = w / h;
+            this.array[0] = w;
+            this.array[1] = h;
+            this.array[2] = this.aspect;
+            this.halfWidth = Math.floor(w / 2);
+            this.halfHeight = Math.floor(h / 2);
+            this.halfArray[0] = this.halfWidth;
+            this.halfArray[1] = this.halfHeight;
+            this.halfArray[2] = this.halfWidth / this.halfHeight;
+          },
+        };
+
+        // Render target management
+        function createRenderTarget(w, h) {
+          const ret = {
+            width: w,
+            height: h,
+            sizeArray: new Float32Array([w, h, w / h]),
+            dtxArray: new Float32Array([1.0 / w, 1.0 / h]),
+          };
+
+          ret.frameBuffer = gl.createFramebuffer();
+          ret.renderBuffer = gl.createRenderbuffer();
+          ret.texture = gl.createTexture();
+
+          gl.bindTexture(gl.TEXTURE_2D, ret.texture);
+          gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA,
+            w,
+            h,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            null,
+          );
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+          gl.bindFramebuffer(gl.FRAMEBUFFER, ret.frameBuffer);
+          gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            gl.COLOR_ATTACHMENT0,
+            gl.TEXTURE_2D,
+            ret.texture,
+            0,
+          );
+
+          gl.bindRenderbuffer(gl.RENDERBUFFER, ret.renderBuffer);
+          gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+          gl.framebufferRenderbuffer(
+            gl.FRAMEBUFFER,
+            gl.DEPTH_ATTACHMENT,
+            gl.RENDERBUFFER,
+            ret.renderBuffer,
+          );
+
+          gl.bindTexture(gl.TEXTURE_2D, null);
+          gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+          return ret;
+        }
+
+        function deleteRenderTarget(rt) {
+          gl.deleteFramebuffer(rt.frameBuffer);
+          gl.deleteRenderbuffer(rt.renderBuffer);
+          gl.deleteTexture(rt.texture);
+        }
+
+        // Shader compilation and program creation
+        function compileShader(shtype, shsrc) {
+          const sh = gl.createShader(shtype);
+          gl.shaderSource(sh, shsrc);
+          gl.compileShader(sh);
+
+          if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+            console.error(gl.getShaderInfoLog(sh));
+            gl.deleteShader(sh);
+            return null;
+          }
+          return sh;
+        }
+
+        function createProgram(vtxsrc, frgsrc, uniformlist, attrlist) {
+          const vsh = compileShader(gl.VERTEX_SHADER, vtxsrc);
+          const fsh = compileShader(gl.FRAGMENT_SHADER, frgsrc);
+
+          if (!vsh || !fsh) return null;
+
+          const prog = gl.createProgram();
+          gl.attachShader(prog, vsh);
+          gl.attachShader(prog, fsh);
+          gl.linkProgram(prog);
+
+          gl.deleteShader(vsh);
+          gl.deleteShader(fsh);
+
+          if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            console.error(gl.getProgramInfoLog(prog));
+            return null;
+          }
+
+          if (uniformlist) {
+            prog.uniforms = {};
+            uniformlist.forEach((name) => {
+              prog.uniforms[name] = gl.getUniformLocation(prog, name);
+            });
+          }
+
+          if (attrlist) {
+            prog.attributes = {};
+            attrlist.forEach((name) => {
+              prog.attributes[name] = gl.getAttribLocation(prog, name);
+            });
+          }
+
+          return prog;
+        }
+
+        // Camera and projection
+        const projection = {
+          angle: 60,
+          nearfar: new Float32Array([0.1, 100.0]),
+          matrix: Matrix44.createIdentity(),
+        };
+
+        const camera = {
+          position: Vector3.create(0, 0, 100),
+          lookat: Vector3.create(0, 0, 0),
+          up: Vector3.create(0, 1, 0),
+          dof: Vector3.create(10.0, 4.0, 8.0),
+          matrix: Matrix44.createIdentity(),
+        };
+
+        // Particle system
+        class BlossomParticle {
+          constructor() {
+            this.velocity = new Array(3);
+            this.rotation = new Array(3);
+            this.position = new Array(3);
+            this.euler = new Array(3);
+            this.size = 1.0;
+            this.alpha = 1.0;
+            this.zkey = 0.0;
+          }
+
+          setVelocity(vx, vy, vz) {
+            this.velocity[0] = vx;
+            this.velocity[1] = vy;
+            this.velocity[2] = vz;
+          }
+
+          setRotation(rx, ry, rz) {
+            this.rotation[0] = rx;
+            this.rotation[1] = ry;
+            this.rotation[2] = rz;
+          }
+
+          setPosition(nx, ny, nz) {
+            this.position[0] = nx;
+            this.position[1] = ny;
+            this.position[2] = nz;
+          }
+
+          setEulerAngles(rx, ry, rz) {
+            this.euler[0] = rx;
+            this.euler[1] = ry;
+            this.euler[2] = rz;
+          }
+
+          setSize(s) {
+            this.size = s;
+          }
+
+          update(dt) {
+            this.position[0] += this.velocity[0] * dt;
+            this.position[1] += this.velocity[1] * dt;
+            this.position[2] += this.velocity[2] * dt;
+
+            this.euler[0] += this.rotation[0] * dt;
+            this.euler[1] += this.rotation[1] * dt;
+            this.euler[2] += this.rotation[2] * dt;
+          }
+        }
+
+        // Flower system
+        const pointFlower = {
+          numFlowers: 2000,
+          particles: [],
+          dataArray: null,
+          buffer: null,
+          program: null,
+          offset: new Float32Array([0.0, 0.0, 0.0]),
+          area: Vector3.create(20.0, 20.0, 20.0),
+          fader: Vector3.create(10.0, 20.0, 0.1),
+          positionArrayOffset: 0,
+          eulerArrayOffset: 0,
+          miscArrayOffset: 0,
+        };
+
+        // Effects library
+        const effectLib = {};
+
+        // State management with smooth transitions
+        let currentMode = "auto";
+        let targetMode = "auto";
+        let currentColorScheme = "classic";
+        let targetColorScheme = "classic";
+        let timeOfDay = 12;
+        let targetTimeOfDay = 12;
+        let autoCycle = true;
+        let cycleSpeed = 0.1;
+        let transitionTime = 2.0;
+        let transitionProgress = 1.0;
+        let transitionStartTime = 0;
+
+        // Animation state
+        let animating = true;
+
+        // UI Elements
+        const timeSlider = document.getElementById("time-slider");
+        const timeDisplay = document.getElementById("time-display");
+        const timeModeIndicator = document.getElementById(
+          "time-mode-indicator",
+        );
+        const petalSlider = document.getElementById("petal-slider");
+        const petalCount = document.getElementById("petal-count");
+        const speedSlider = document.getElementById("speed-slider");
+        const speedValue = document.getElementById("speed-value");
+        const transitionSlider = document.getElementById("transition-slider");
+        const transitionValue = document.getElementById("transition-value");
+        const cycleStatus = document.getElementById("cycle-status");
+        const controls = document.getElementById("controls");
+        const toggleControls = document.getElementById("toggle-controls");
+
+        // Mode buttons
+        const modeAuto = document.getElementById("mode-auto");
+        const modeDay = document.getElementById("mode-day");
+        const modeNight = document.getElementById("mode-night");
+        const modeSunset = document.getElementById("mode-sunset");
+        const modeDawn = document.getElementById("mode-dawn");
+        const modeRandom = document.getElementById("mode-random");
+
+        // Color buttons
+        const colorClassic = document.getElementById("color-classic");
+        const colorDeep = document.getElementById("color-deep");
+        const colorMoon = document.getElementById("color-moon");
+        const colorAutumn = document.getElementById("color-autumn");
+        const colorSpring = document.getElementById("color-spring");
+        const colorRainbow = document.getElementById("color-rainbow");
+
+        function formatTime(hour) {
+          const h = Math.floor(hour);
+          const m = Math.floor((hour % 1) * 60);
+          const ampm = h >= 12 ? "PM" : "AM";
+          const hour12 = h % 12 || 12;
+          return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+        }
+
+        function updateUITime() {
+          timeDisplay.textContent = formatTime(timeOfDay);
+          timeSlider.value = timeOfDay;
+
+          // Update mode indicator
+          if (transitionProgress < 1.0) {
+            timeModeIndicator.textContent = "(Transitioning...)";
+          } else if (currentMode === "auto") {
+            timeModeIndicator.textContent = "(Auto)";
+          } else {
+            timeModeIndicator.textContent = `(${currentMode})`;
+          }
+
+          // Update cycle status
+          if (currentMode === "auto") {
+            cycleStatus.textContent = "Auto Cycle";
+            cycleStatus.style.background = "rgba(255, 255, 255, 0.2)";
+          } else {
+            cycleStatus.textContent =
+              currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+            cycleStatus.style.background = "rgba(255, 123, 156, 0.3)";
+          }
+        }
+
+        function setActiveModeButton(mode) {
+          [
+            modeAuto,
+            modeDay,
+            modeNight,
+            modeSunset,
+            modeDawn,
+            modeRandom,
+          ].forEach((btn) => btn.classList.remove("active"));
+          switch (mode) {
+            case "auto":
+              modeAuto.classList.add("active");
+              break;
+            case "day":
+              modeDay.classList.add("active");
+              break;
+            case "night":
+              modeNight.classList.add("active");
+              break;
+            case "sunset":
+              modeSunset.classList.add("active");
+              break;
+            case "dawn":
+              modeDawn.classList.add("active");
+              break;
+            case "random":
+              modeRandom.classList.add("active");
+              break;
+          }
+        }
+
+        function setActiveColorButton(scheme) {
+          [
+            colorClassic,
+            colorDeep,
+            colorMoon,
+            colorAutumn,
+            colorSpring,
+            colorRainbow,
+          ].forEach((btn) => btn.classList.remove("active"));
+          switch (scheme) {
+            case "classic":
+              colorClassic.classList.add("active");
+              break;
+            case "deep":
+              colorDeep.classList.add("active");
+              break;
+            case "moon":
+              colorMoon.classList.add("active");
+              break;
+            case "autumn":
+              colorAutumn.classList.add("active");
+              break;
+            case "spring":
+              colorSpring.classList.add("active");
+              break;
+            case "rainbow":
+              colorRainbow.classList.add("active");
+              break;
+          }
+        }
+
+        function startTransition(newMode, newTime) {
+          targetMode = newMode;
+          targetTimeOfDay = newTime;
+          transitionProgress = 0;
+          transitionStartTime = performance.now() / 1000;
+
+          if (newMode !== "auto") {
+            autoCycle = false;
+          }
+        }
+
+        function updateTransition() {
+          if (transitionProgress < 1.0) {
+            const now = performance.now() / 1000;
+            transitionProgress = Math.min(
+              (now - transitionStartTime) / transitionTime,
+              1.0,
+            );
+
+            // Smooth easing
+            transitionProgress =
+              transitionProgress < 0.5
+                ? 2 * transitionProgress * transitionProgress
+                : 1 - Math.pow(-2 * transitionProgress + 2, 2) / 2;
+
+            timeOfDay =
+              timeOfDay + (targetTimeOfDay - timeOfDay) * transitionProgress;
+
+            if (transitionProgress >= 1.0) {
+              currentMode = targetMode;
+              timeOfDay = targetTimeOfDay;
+            }
+
+            updateUITime();
+          }
+        }
+
+        function setMode(mode) {
+          let newTime = timeOfDay;
+          switch (mode) {
+            case "day":
+              newTime = 12;
+              break;
+            case "night":
+              newTime = 0;
+              break;
+            case "sunset":
+              newTime = 17.5;
+              break;
+            case "dawn":
+              newTime = 6;
+              break;
+            case "random":
+              newTime = Math.random() * 24;
+              mode = "manual";
+              break;
+          }
+          startTransition(mode, newTime);
+          setActiveModeButton(mode);
+
+          // Update URL
+          updateURL({
+            mode: mode === "auto" ? null : mode,
+            time: mode === "auto" ? null : newTime.toFixed(1),
+          });
+        }
+
+        function setColorScheme(scheme) {
+          currentColorScheme = scheme;
+          setActiveColorButton(scheme);
+          updateURL({ color: scheme === "classic" ? null : scheme });
+        }
+
+        // Initialize UI event listeners
+        function initUI() {
+          // Toggle controls
+          toggleControls.addEventListener("click", () => {
+            controls.classList.toggle("minimized");
+            toggleControls.textContent = controls.classList.contains(
+              "minimized",
+            )
+              ? "▲"
+              : "▼";
+          });
+
+          // Time slider
+          timeSlider.addEventListener("input", (e) => {
+            targetTimeOfDay = parseFloat(e.target.value);
+            timeOfDay = targetTimeOfDay; // Instant update while sliding
+            autoCycle = false;
+            currentMode = "manual";
+            targetMode = "manual";
+            transitionProgress = 1.0;
+            setActiveModeButton("manual");
+            updateUITime();
+          });
+
+          timeSlider.addEventListener("change", (e) => {
+            updateURL({ time: timeOfDay.toFixed(1), mode: null });
+          });
+
+          // Petal count
+          petalSlider.addEventListener("input", (e) => {
+            const count = parseInt(e.target.value);
+            petalCount.textContent = count;
+          });
+
+          petalSlider.addEventListener("change", (e) => {
+            const count = parseInt(e.target.value);
+            pointFlower.numFlowers = count;
+            initParticles();
+            updateURL({ petals: count === 2000 ? null : count });
+          });
+
+          // Speed slider
+          speedSlider.addEventListener("input", (e) => {
+            cycleSpeed = parseFloat(e.target.value);
+            speedValue.textContent = cycleSpeed.toFixed(2) + "x";
+          });
+
+          speedSlider.addEventListener("change", (e) => {
+            updateURL({
+              speed: cycleSpeed === 0.1 ? null : cycleSpeed.toFixed(2),
+            });
+          });
+
+          // Transition slider
+          transitionSlider.addEventListener("input", (e) => {
+            transitionTime = parseFloat(e.target.value);
+            transitionValue.textContent = transitionTime.toFixed(1) + "s";
+          });
+
+          transitionSlider.addEventListener("change", (e) => {
+            updateURL({
+              transition:
+                transitionTime === 2.0 ? null : transitionTime.toFixed(1),
+            });
+          });
+
+          // Mode buttons
+          modeAuto.addEventListener("click", () => {
+            autoCycle = true;
+            currentMode = "auto";
+            targetMode = "auto";
+            transitionProgress = 1.0;
+            setActiveModeButton("auto");
+            updateURL({ mode: null, time: null });
+          });
+
+          modeDay.addEventListener("click", () => setMode("day"));
+          modeNight.addEventListener("click", () => setMode("night"));
+          modeSunset.addEventListener("click", () => setMode("sunset"));
+          modeDawn.addEventListener("click", () => setMode("dawn"));
+          modeRandom.addEventListener("click", () => setMode("random"));
+
+          // Color buttons
+          colorClassic.addEventListener("click", () =>
+            setColorScheme("classic"),
+          );
+          colorDeep.addEventListener("click", () => setColorScheme("deep"));
+          colorMoon.addEventListener("click", () => setColorScheme("moon"));
+          colorAutumn.addEventListener("click", () => setColorScheme("autumn"));
+          colorSpring.addEventListener("click", () => setColorScheme("spring"));
+          colorRainbow.addEventListener("click", () =>
+            setColorScheme("rainbow"),
+          );
+
+          // Copy URL
+          document.getElementById("copy-url").addEventListener("click", () => {
+            navigator.clipboard.writeText(window.location.href);
+            alert("URL copied to clipboard!");
+          });
+
+          // Reset
+          document
+            .getElementById("reset-default")
+            .addEventListener("click", () => {
+              window.location.href = window.location.pathname;
+            });
+        }
+
+        // Apply URL parameters
+        function applyURLParams() {
+          const params = getURLParams();
+
+          if (params.petals !== null) {
+            pointFlower.numFlowers = params.petals;
+            petalSlider.value = params.petals;
+            petalCount.textContent = params.petals;
+          }
+
+          if (params.speed !== null) {
+            cycleSpeed = params.speed;
+            speedSlider.value = params.speed;
+            speedValue.textContent = params.speed.toFixed(2) + "x";
+          }
+
+          if (params.transition !== null) {
+            transitionTime = params.transition;
+            transitionSlider.value = params.transition;
+            transitionValue.textContent = params.transition.toFixed(1) + "s";
+          }
+
+          if (params.color !== null && colorSchemes[params.color]) {
+            currentColorScheme = params.color;
+            setActiveColorButton(params.color);
+          }
+
+          if (params.mode !== null) {
+            const mode = params.mode;
+            if (["day", "night", "sunset", "dawn"].includes(mode)) {
+              currentMode = mode;
+              targetMode = mode;
+              autoCycle = false;
+              setActiveModeButton(mode);
+
+              if (params.time !== null) {
+                timeOfDay = params.time;
+                targetTimeOfDay = params.time;
+              } else {
+                switch (mode) {
+                  case "day":
+                    timeOfDay = 12;
+                    break;
+                  case "night":
+                    timeOfDay = 0;
+                    break;
+                  case "sunset":
+                    timeOfDay = 17.5;
+                    break;
+                  case "dawn":
+                    timeOfDay = 6;
+                    break;
+                }
+              }
+            }
+          } else if (params.time !== null) {
+            timeOfDay = params.time;
+            targetTimeOfDay = params.time;
+            currentMode = "manual";
+            targetMode = "manual";
+            autoCycle = false;
+            setActiveModeButton("manual");
+          }
+
+          if (params.cycle !== null) {
+            autoCycle = params.cycle;
+          }
+
+          updateUITime();
+
+          // Show URL params
+          if (window.location.search) {
+            document.getElementById("url-params").textContent =
+              window.location.search;
+            document.getElementById("url-params").style.display = "block";
+            setTimeout(() => {
+              document.getElementById("url-params").style.display = "none";
+            }, 5000);
+          }
+        }
+
+        // Core functions
+        function createShaders() {
+          // Point flower shader
+          const vtxsrc =
+            document.getElementById("sakura_point_vsh").textContent;
+          const frgsrc =
+            document.getElementById("sakura_point_fsh").textContent;
+          pointFlower.program = createProgram(
+            vtxsrc,
+            frgsrc,
+            [
+              "uProjection",
+              "uModelview",
+              "uResolution",
+              "uOffset",
+              "uDOF",
+              "uFade",
+              "uColor1",
+              "uColor2",
+              "uFadeColor",
+              "uTimeOfDay",
+              "uNightMode",
+              "uTransition",
+            ],
+            ["aPosition", "aEuler", "aMisc"],
+          );
+
+          // Effect shaders
+          const cmnvtxsrc =
+            document.getElementById("fx_common_vsh").textContent;
+
+          effectLib.sceneBg = createProgram(
+            cmnvtxsrc,
+            document.getElementById("bg_fsh").textContent,
+            [
+              "uResolution",
+              "uTimes",
+              "uTimeOfDay",
+              "uNightMode",
+              "uTransition",
+            ],
+            ["aPosition"],
+          );
+
+          effectLib.mkBrightBuf = createProgram(
+            cmnvtxsrc,
+            document.getElementById("fx_brightbuf_fsh").textContent,
+            ["uResolution", "uSrc", "uDelta"],
+            ["aPosition"],
+          );
+
+          effectLib.dirBlur = createProgram(
+            cmnvtxsrc,
+            document.getElementById("fx_dirblur_r4_fsh").textContent,
+            ["uResolution", "uSrc", "uDelta", "uBlurDir"],
+            ["aPosition"],
+          );
+
+          effectLib.finalComp = createProgram(
+            document.getElementById("pp_final_vsh").textContent,
+            document.getElementById("pp_final_fsh").textContent,
+            [
+              "uResolution",
+              "uSrc",
+              "uDelta",
+              "uBloom",
+              "uTimeOfDay",
+              "uNightMode",
+            ],
+            ["aPosition"],
+          );
+
+          // Create fullscreen quad buffers for effects
+          const quadData = new Float32Array([
+            -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
+          ]);
+
+          Object.keys(effectLib).forEach((key) => {
+            const prog = effectLib[key];
+            if (prog) {
+              prog.buffer = gl.createBuffer();
+              gl.bindBuffer(gl.ARRAY_BUFFER, prog.buffer);
+              gl.bufferData(gl.ARRAY_BUFFER, quadData, gl.STATIC_DRAW);
+              gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            }
+          });
+        }
+
+        function initParticles() {
+          const PI2 = Math.PI * 2.0;
+          const tmpv3 = Vector3.create(0, 0, 0);
+
+          pointFlower.area.x = pointFlower.area.y * renderSpec.aspect;
+          pointFlower.fader.y = pointFlower.area.z;
+
+          // Clear existing particles and create new array
+          pointFlower.particles = [];
+
+          for (let i = 0; i < pointFlower.numFlowers; i++) {
+            const p = new BlossomParticle();
+
+            // Velocity
+            tmpv3.x = (Math.random() * 2.0 - 1.0) * 0.3 + 0.8;
+            tmpv3.y = (Math.random() * 2.0 - 1.0) * 0.2 - 1.0;
+            tmpv3.z = (Math.random() * 2.0 - 1.0) * 0.3 + 0.5;
+            Vector3.normalize(tmpv3);
+            const speed = 2.0 + Math.random() * 1.0;
+            p.setVelocity(tmpv3.x * speed, tmpv3.y * speed, tmpv3.z * speed);
+
+            // Rotation
+            p.setRotation(
+              (Math.random() * 2.0 - 1.0) * PI2 * 0.5,
+              (Math.random() * 2.0 - 1.0) * PI2 * 0.5,
+              (Math.random() * 2.0 - 1.0) * PI2 * 0.5,
+            );
+
+            // Position
+            p.setPosition(
+              (Math.random() * 2.0 - 1.0) * pointFlower.area.x,
+              (Math.random() * 2.0 - 1.0) * pointFlower.area.y,
+              (Math.random() * 2.0 - 1.0) * pointFlower.area.z,
+            );
+
+            // Euler angles
+            p.setEulerAngles(
+              Math.random() * PI2,
+              Math.random() * PI2,
+              Math.random() * PI2,
+            );
+
+            // Size
+            p.setSize(0.9 + Math.random() * 0.1);
+
+            pointFlower.particles[i] = p;
+          }
+
+          // Create data buffer
+          pointFlower.dataArray = new Float32Array(
+            pointFlower.numFlowers * (3 + 3 + 2),
+          );
+          pointFlower.positionArrayOffset = 0;
+          pointFlower.eulerArrayOffset = pointFlower.numFlowers * 3;
+          pointFlower.miscArrayOffset = pointFlower.numFlowers * 6;
+
+          // Delete old buffer if it exists
+          if (pointFlower.buffer) {
+            gl.deleteBuffer(pointFlower.buffer);
+          }
+
+          pointFlower.buffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointFlower.buffer);
+          gl.bufferData(
+            gl.ARRAY_BUFFER,
+            pointFlower.dataArray,
+            gl.DYNAMIC_DRAW,
+          );
+          gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        }
+
+        function updateParticles() {
+          // Safety check - make sure particles exist
+          if (!pointFlower.particles || pointFlower.particles.length === 0) {
+            return;
+          }
+
+          const PI2 = Math.PI * 2.0;
+          const limit = [
+            pointFlower.area.x,
+            pointFlower.area.y,
+            pointFlower.area.z,
+          ];
+
+          for (let i = 0; i < pointFlower.numFlowers; i++) {
+            const p = pointFlower.particles[i];
+            if (!p) continue; // Skip if particle doesn't exist
+
+            p.update(timeInfo.delta);
+
+            // Wrap position
+            for (let j = 0; j < 3; j++) {
+              if (Math.abs(p.position[j]) > limit[j]) {
+                p.position[j] = -Math.sign(p.position[j]) * limit[j];
+              }
+            }
+
+            // Wrap euler angles
+            for (let j = 0; j < 3; j++) {
+              p.euler[j] = p.euler[j] % PI2;
+              if (p.euler[j] < 0) p.euler[j] += PI2;
+            }
+
+            // Calculate z-key for sorting
+            p.zkey =
+              camera.matrix[2] * p.position[0] +
+              camera.matrix[6] * p.position[1] +
+              camera.matrix[10] * p.position[2] +
+              camera.matrix[14];
+          }
+
+          // Sort particles by z-depth
+          pointFlower.particles.sort((a, b) => a.zkey - b.zkey);
+
+          // Update data array
+          let ipos = pointFlower.positionArrayOffset;
+          let ieuler = pointFlower.eulerArrayOffset;
+          let imisc = pointFlower.miscArrayOffset;
+
+          for (let i = 0; i < pointFlower.numFlowers; i++) {
+            const p = pointFlower.particles[i];
+            if (!p) continue;
+
+            pointFlower.dataArray[ipos++] = p.position[0];
+            pointFlower.dataArray[ipos++] = p.position[1];
+            pointFlower.dataArray[ipos++] = p.position[2];
+
+            pointFlower.dataArray[ieuler++] = p.euler[0];
+            pointFlower.dataArray[ieuler++] = p.euler[1];
+            pointFlower.dataArray[ieuler++] = p.euler[2];
+
+            pointFlower.dataArray[imisc++] = p.size;
+            pointFlower.dataArray[imisc++] = 1.0;
+          }
+        }
+
+        function renderParticles() {
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+          const prog = pointFlower.program;
+          gl.useProgram(prog);
+
+          // Determine night mode with smooth transition
+          const isNight = timeOfDay < 6 || timeOfDay > 18;
+          const nightMode = isNight ? transitionProgress : 0.0;
+
+          // Get current color scheme
+          const scheme = colorSchemes[currentColorScheme];
+
+          // Set uniforms
+          gl.uniformMatrix4fv(
+            prog.uniforms.uProjection,
+            false,
+            projection.matrix,
+          );
+          gl.uniformMatrix4fv(prog.uniforms.uModelview, false, camera.matrix);
+          gl.uniform3fv(prog.uniforms.uResolution, renderSpec.array);
+          gl.uniform3fv(prog.uniforms.uDOF, Vector3.arrayForm(camera.dof));
+          gl.uniform3fv(
+            prog.uniforms.uFade,
+            Vector3.arrayForm(pointFlower.fader),
+          );
+          gl.uniform3fv(prog.uniforms.uColor1, new Float32Array(scheme.color1));
+          gl.uniform3fv(prog.uniforms.uColor2, new Float32Array(scheme.color2));
+          gl.uniform3fv(
+            prog.uniforms.uFadeColor,
+            new Float32Array(scheme.fadeColor),
+          );
+          gl.uniform1f(prog.uniforms.uTimeOfDay, timeOfDay);
+          gl.uniform1f(prog.uniforms.uNightMode, nightMode);
+          gl.uniform1f(prog.uniforms.uTransition, transitionProgress);
+
+          // Update buffer
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointFlower.buffer);
+          gl.bufferData(
+            gl.ARRAY_BUFFER,
+            pointFlower.dataArray,
+            gl.DYNAMIC_DRAW,
+          );
+
+          // Set attributes
+          gl.vertexAttribPointer(
+            prog.attributes.aPosition,
+            3,
+            gl.FLOAT,
+            false,
+            0,
+            pointFlower.positionArrayOffset * Float32Array.BYTES_PER_ELEMENT,
+          );
+          gl.vertexAttribPointer(
+            prog.attributes.aEuler,
+            3,
+            gl.FLOAT,
+            false,
+            0,
+            pointFlower.eulerArrayOffset * Float32Array.BYTES_PER_ELEMENT,
+          );
+          gl.vertexAttribPointer(
+            prog.attributes.aMisc,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            pointFlower.miscArrayOffset * Float32Array.BYTES_PER_ELEMENT,
+          );
+
+          gl.enableVertexAttribArray(prog.attributes.aPosition);
+          gl.enableVertexAttribArray(prog.attributes.aEuler);
+          gl.enableVertexAttribArray(prog.attributes.aMisc);
+
+          // Draw main instance
+          pointFlower.offset[0] = 0.0;
+          pointFlower.offset[1] = 0.0;
+          pointFlower.offset[2] = 0.0;
+          gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
+          gl.drawArrays(gl.POINTS, 0, pointFlower.numFlowers);
+
+          // Draw mirrored instances for seamless tiling
+          const offsets = [
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1],
+          ];
+
+          offsets.forEach((offset) => {
+            pointFlower.offset[0] = pointFlower.area.x * offset[0];
+            pointFlower.offset[1] = pointFlower.area.y * offset[1];
+            pointFlower.offset[2] = 0;
+            gl.uniform3fv(prog.uniforms.uOffset, pointFlower.offset);
+            gl.drawArrays(gl.POINTS, 0, pointFlower.numFlowers);
+          });
+
+          gl.disableVertexAttribArray(prog.attributes.aPosition);
+          gl.disableVertexAttribArray(prog.attributes.aEuler);
+          gl.disableVertexAttribArray(prog.attributes.aMisc);
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, null);
+          gl.useProgram(null);
+
+          gl.disable(gl.BLEND);
+        }
+
+        function renderBackground() {
+          const prog = effectLib.sceneBg;
+          gl.useProgram(prog);
+
+          const isNight = timeOfDay < 6 || timeOfDay > 18;
+          const nightMode = isNight ? transitionProgress : 0.0;
+
+          gl.uniform3fv(prog.uniforms.uResolution, renderSpec.array);
+          gl.uniform2f(prog.uniforms.uTimes, timeInfo.elapsed, timeInfo.delta);
+          gl.uniform1f(prog.uniforms.uTimeOfDay, timeOfDay);
+          gl.uniform1f(prog.uniforms.uNightMode, nightMode);
+          gl.uniform1f(prog.uniforms.uTransition, transitionProgress);
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, prog.buffer);
+          gl.vertexAttribPointer(
+            prog.attributes.aPosition,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0,
+          );
+          gl.enableVertexAttribArray(prog.attributes.aPosition);
+
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+          gl.disableVertexAttribArray(prog.attributes.aPosition);
+          gl.bindBuffer(gl.ARRAY_BUFFER, null);
+          gl.useProgram(null);
+        }
+
+        function renderPostProcess() {
+          // Bind main RT as source
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, renderSpec.mainRT.texture);
+
+          // Create bright buffer
+          gl.bindFramebuffer(gl.FRAMEBUFFER, renderSpec.wHalfRT0.frameBuffer);
+          gl.viewport(
+            0,
+            0,
+            renderSpec.wHalfRT0.width,
+            renderSpec.wHalfRT0.height,
+          );
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          let prog = effectLib.mkBrightBuf;
+          gl.useProgram(prog);
+          gl.uniform3fv(prog.uniforms.uResolution, renderSpec.halfArray);
+          gl.uniform2fv(prog.uniforms.uDelta, renderSpec.mainRT.dtxArray);
+          gl.uniform1i(prog.uniforms.uSrc, 0);
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, prog.buffer);
+          gl.vertexAttribPointer(
+            prog.attributes.aPosition,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0,
+          );
+          gl.enableVertexAttribArray(prog.attributes.aPosition);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          gl.useProgram(null);
+
+          // Apply directional blur
+          for (let i = 0; i < 2; i++) {
+            const p = 1.5 + i;
+            const s = 2.0 + i;
+
+            // Horizontal blur
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderSpec.wHalfRT1.frameBuffer);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            prog = effectLib.dirBlur;
+            gl.useProgram(prog);
+            gl.uniform3fv(prog.uniforms.uResolution, renderSpec.halfArray);
+            gl.uniform2fv(prog.uniforms.uDelta, renderSpec.wHalfRT0.dtxArray);
+            gl.uniform1i(prog.uniforms.uSrc, 0);
+            gl.uniform4f(prog.uniforms.uBlurDir, p, 0.0, s, 0.0);
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, renderSpec.wHalfRT0.texture);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, prog.buffer);
+            gl.vertexAttribPointer(
+              prog.attributes.aPosition,
+              2,
+              gl.FLOAT,
+              false,
+              0,
+              0,
+            );
+            gl.enableVertexAttribArray(prog.attributes.aPosition);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            // Vertical blur
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderSpec.wHalfRT0.frameBuffer);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.uniform2fv(prog.uniforms.uDelta, renderSpec.wHalfRT1.dtxArray);
+            gl.uniform4f(prog.uniforms.uBlurDir, 0.0, p, 0.0, s);
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, renderSpec.wHalfRT1.texture);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            gl.useProgram(null);
+          }
+
+          // Final composite
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          gl.viewport(0, 0, renderSpec.width, renderSpec.height);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+
+          prog = effectLib.finalComp;
+          gl.useProgram(prog);
+          gl.uniform3fv(prog.uniforms.uResolution, renderSpec.array);
+          gl.uniform2fv(prog.uniforms.uDelta, renderSpec.mainRT.dtxArray);
+          gl.uniform1i(prog.uniforms.uSrc, 0);
+          gl.uniform1i(prog.uniforms.uBloom, 1);
+          gl.uniform1f(prog.uniforms.uTimeOfDay, timeOfDay);
+
+          const isNight = timeOfDay < 6 || timeOfDay > 18;
+          const nightMode = isNight ? transitionProgress : 0.0;
+          gl.uniform1f(prog.uniforms.uNightMode, nightMode);
+
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, renderSpec.mainRT.texture);
+          gl.activeTexture(gl.TEXTURE1);
+          gl.bindTexture(gl.TEXTURE_2D, renderSpec.wHalfRT0.texture);
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, prog.buffer);
+          gl.vertexAttribPointer(
+            prog.attributes.aPosition,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0,
+          );
+          gl.enableVertexAttribArray(prog.attributes.aPosition);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+          gl.disableVertexAttribArray(prog.attributes.aPosition);
+          gl.bindBuffer(gl.ARRAY_BUFFER, null);
+          gl.useProgram(null);
+        }
+
+        function setViewports() {
+          renderSpec.setSize(gl.canvas.width, gl.canvas.height);
+
+          // Recreate render targets
+          if (renderSpec.mainRT) deleteRenderTarget(renderSpec.mainRT);
+          if (renderSpec.wHalfRT0) deleteRenderTarget(renderSpec.wHalfRT0);
+          if (renderSpec.wHalfRT1) deleteRenderTarget(renderSpec.wHalfRT1);
+
+          renderSpec.mainRT = createRenderTarget(
+            renderSpec.width,
+            renderSpec.height,
+          );
+          renderSpec.wHalfRT0 = createRenderTarget(
+            renderSpec.halfWidth,
+            renderSpec.halfHeight,
+          );
+          renderSpec.wHalfRT1 = createRenderTarget(
+            renderSpec.halfWidth,
+            renderSpec.halfHeight,
+          );
+        }
+
+        function initScene() {
+          camera.position.z = pointFlower.area.z + projection.nearfar[0];
+          projection.angle =
+            ((Math.atan2(
+              pointFlower.area.y,
+              camera.position.z + pointFlower.area.z,
+            ) *
+              180) /
+              Math.PI) *
+            2.0;
+
+          Matrix44.loadProjection(
+            projection.matrix,
+            renderSpec.aspect,
+            projection.angle,
+            projection.nearfar[0],
+            projection.nearfar[1],
+          );
+        }
+
+        function renderScene() {
+          Matrix44.loadLookAt(
+            camera.matrix,
+            camera.position,
+            camera.lookat,
+            camera.up,
+          );
+
+          // Update transition
+          updateTransition();
+
+          // Update time if in auto mode
+          if (
+            autoCycle &&
+            currentMode === "auto" &&
+            transitionProgress >= 1.0
+          ) {
+            timeOfDay = (timeOfDay + timeInfo.delta * cycleSpeed) % 24;
+            updateUITime();
+          }
+
+          // Render to main RT
+          gl.bindFramebuffer(gl.FRAMEBUFFER, renderSpec.mainRT.frameBuffer);
+          gl.viewport(0, 0, renderSpec.mainRT.width, renderSpec.mainRT.height);
+          gl.clearColor(0.005, 0, 0.05, 0);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+          renderBackground();
+          updateParticles();
+          renderParticles();
+          renderPostProcess();
+        }
+
+        function animate() {
+          if (!animating) return;
+
+          const now = performance.now() / 1000;
+          if (timeInfo.start === 0) {
+            timeInfo.start = now;
+            timeInfo.prev = now;
+          }
+
+          timeInfo.elapsed = now - timeInfo.start;
+          timeInfo.delta = Math.min(now - timeInfo.prev, 0.1);
+          timeInfo.prev = now;
+
+          renderScene();
+          requestAnimationFrame(animate);
+        }
+
+        // Initialize everything
+        window.addEventListener("load", function () {
+          const canvas = document.getElementById("sakura");
+
+          // Set canvas size
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          // Get WebGL context
+          gl =
+            canvas.getContext("webgl") ||
+            canvas.getContext("experimental-webgl");
+          if (!gl) {
+            alert("WebGL not supported in your browser.");
+            return;
+          }
+
+          // Enable necessary extensions
+          gl.getExtension("OES_standard_derivatives");
+
+          // Setup
+          setViewports();
+          createShaders();
+          initParticles();
+          initScene();
+          initUI();
+
+          // Apply URL parameters before setting initial UI state
+          applyURLParams();
+
+          // Set initial UI state based on URL or defaults
+          setActiveModeButton(currentMode);
+          setActiveColorButton(currentColorScheme);
+          updateUITime();
+
+          // Start animation
+          timeInfo.start = performance.now() / 1000;
+          timeInfo.prev = timeInfo.start;
+          animate();
+
+          // Handle resize
+          window.addEventListener("resize", function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            setViewports();
+            initScene();
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
