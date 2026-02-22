@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MultiCanvasLayerEngine</title>
+
+    <style>
+      * {
+        background: transparent;
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c1"></canvas>
+    <script type="module">
+      import {
+        MultiCanvasLayerEngine,
+        Node,
+        CustomNode,
+        Random,
+        Vector2,
+        Bounds2,
+        MathUtils,
+        CollisionResolver,
+        CollisionDetector,
+        Circle,
+        PhysicsBody,
+        AABB,
+        PhysicsMaterial,
+        CollisionManifold,
+      } from "../main.js";
+      (function () {
+        const canvas1 = document.getElementById("c1");
+
+        const engine = new MultiCanvasLayerEngine();
+
+        // 1. Add layers first
+        engine.layerManager.addLayer("c1", canvas1, {
+          styles: {
+            backgroundColor: "white",
+            filter: "blur(7px) contrast(30) invert(1)",
+          },
+          // Optional: custom layer render function
+          onRender: ({ layer, context, deltaTime }) => {
+            layer.clear();
+          },
+        });
+
+        // 2. Create custom node
+        const cn1 = new CustomNode({
+          layerId: "c1",
+          onInit: function ({ layer, engine }) {
+            this.worldBounds = Bounds2.fromSize(
+              layer.canvas.width - 40,
+              layer.canvas.height - 40,
+            ).pad(20);
+
+            this.bodies = [];
+
+            // Create fewer objects to start
+            for (let i = 0; i < 100; i++) {
+              const radius = Random.float(20, 40);
+
+              this.bodies.push(
+                new PhysicsBody({
+                  shape: new Circle(
+                    new Vector2(
+                      Random.float(radius, this.worldBounds.max.x - radius),
+                      Random.float(radius, this.worldBounds.max.y - radius),
+                    ),
+                    radius,
+                  ),
+                  material: PhysicsMaterial.ROUGH, // Start with less bouncy material
+                  mass: radius * 2,
+                  velocity: Vector2.randomDirection().multiply(
+                    Random.float(20, 100),
+                  ), // Lower initial speed
+                  gravityScale: 1,
+                  bounds: this.worldBounds,
+                  maxSpeed: 300, // Limit speed
+                  linearDamping: 0.98, // Add damping
+                }),
+              );
+            }
+          },
+
+          onUpdate: function ({ deltaTime, layer }) {
+            // Cap delta time
+            deltaTime = Math.min(deltaTime, 0.033);
+
+            this.worldBounds = Bounds2.fromSize(
+              layer.canvas.width - 40,
+              layer.canvas.height - 40,
+            ).pad(20);
+
+            // Lower gravity
+            const gravity = Vector2.Down.multiply(10000);
+
+            // Update bodies
+            for (const body of this.bodies) {
+              body.bounds = this.worldBounds;
+              body.update(deltaTime, gravity);
+            }
+
+            // Collision detection with iteration limit
+            const manifold = new CollisionManifold();
+
+            for (let i = 0; i < this.bodies.length; i++) {
+              for (let j = i + 1; j < this.bodies.length; j++) {
+                const bodyA = this.bodies[i];
+                const bodyB = this.bodies[j];
+
+                if (bodyA.isStatic && bodyB.isStatic) continue;
+                if (bodyA.isSleeping && bodyB.isSleeping) continue;
+
+                const aabbA = bodyA.shape.getAABB();
+                const aabbB = bodyB.shape.getAABB();
+
+                if (
+                  aabbA.max.x < aabbB.min.x ||
+                  aabbA.min.x > aabbB.max.x ||
+                  aabbA.max.y < aabbB.min.y ||
+                  aabbA.min.y > aabbB.max.y
+                ) {
+                  continue;
+                }
+
+                if (
+                  bodyA.shape.type === "circle" &&
+                  bodyB.shape.type === "circle"
+                ) {
+                  if (
+                    CollisionDetector.circleVsCircle(
+                      bodyA.shape,
+                      bodyB.shape,
+                      manifold,
+                    )
+                  ) {
+                    CollisionResolver.resolveCollision(
+                      bodyA,
+                      bodyB,
+                      manifold,
+                      deltaTime,
+                    );
+                  }
+                }
+              }
+            }
+          },
+
+          onDraw: function ({ context, layer }) {
+            // Clear
+            context.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+
+            // Draw bounds
+            context.strokeStyle = "rgba(255, 255, 255, 0.3)";
+            context.strokeRect(
+              this.worldBounds.min.x,
+              this.worldBounds.min.y,
+              this.worldBounds.width,
+              this.worldBounds.height,
+            );
+
+            // Draw bodies
+            for (const body of this.bodies) {
+              if (body.shape.type === "circle") {
+                const circle = body.shape;
+
+                const color = body.isSleeping
+                  ? "rgba(50, 150, 150, 0.5)"
+                  : `hsla(1, 70%, 60%, 0.8)`;
+
+                context.beginPath();
+                context.arc(
+                  circle.position.x,
+                  circle.position.y,
+                  circle.radius,
+                  0,
+                  Math.PI * 2,
+                );
+                context.fillStyle = color;
+                context.fill();
+              }
+            }
+          },
+        });
+
+        // 3. Add node to root
+        engine.rootNode.addChild(cn1);
+
+        // 4. Initialize and start
+        engine.start();
+      })();
+    </script>
+  </body>
+</html>
